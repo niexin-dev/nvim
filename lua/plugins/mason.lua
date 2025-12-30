@@ -1,6 +1,6 @@
 local tools = {
 	"clang-format", -- C/C++ 格式化工具
-	"checkmake", -- Makefile linter
+	"mbake", -- Makefile format linter
 	"prettierd", -- 更快的 Prettier 守护进程
 	"shellcheck", -- Shell 脚本 linter
 	"shfmt", -- Shell 脚本格式化工具

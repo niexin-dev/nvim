@@ -39,6 +39,7 @@ return {
 			markdown = { "prettierd" },
 			json = { "prettierd" },
 			toml = { "taplo" },
+			make = { "bake" },
 		},
 		-- 默认的格式化设置
 		default_format_opts = {
