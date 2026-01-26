@@ -32,8 +32,11 @@ local defaults = {
 	new_term_when_has_term = "vsplit", -- when term exists, create on the right of last term
 	mappings = {
 		-- terminal-mode escape
-		term_escape = { mode = "t", lhs = "<leader>e", rhs = [[<C-\><C-n>]], desc = "Terminal: exit to Normal" },
+		-- <leader>ee: exit to Normal
+		term_escape = { mode = "t", lhs = "<leader>ee", desc = "Terminal: exit to Normal" },
 
+		-- <leader>ea: exit to Normal and hide current terminal window
+		term_escape_hide = { mode = "t", lhs = "<leader>ea", desc = "Terminal: exit + hide" },
 		-- create a new terminal
 		new_terminal = { mode = "n", lhs = "<leader>fw", desc = "New terminal" },
 
@@ -117,6 +120,38 @@ function M.escape()
 	-- same behavior as mapping: <C-\><C-n>
 	local keys = vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, false, true)
 	vim.api.nvim_feedkeys(keys, "n", false)
+end
+
+-- exit terminal-mode then hide current window (keep job/buffer)
+local function add_hidden_term_buffer(buf)
+	if not (is_terminal_buf(buf) and vim.api.nvim_buf_is_valid(buf)) then
+		return
+	end
+	for _, b in ipairs(state.hidden_term_buffers) do
+		if b == buf then
+			return
+		end
+	end
+	table.insert(state.hidden_term_buffers, buf)
+end
+
+function M.escape_hide()
+	local win = vim.api.nvim_get_current_win()
+	local buf = vim.api.nvim_win_get_buf(win)
+
+	M.escape()
+
+	vim.schedule(function()
+		add_hidden_term_buffer(buf)
+
+		if win and vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_hide(win)
+		end
+
+		if state.last_term_win == win then
+			state.last_term_win = nil
+		end
+	end)
 end
 
 -- <leader>fw behavior: create a terminal
@@ -214,12 +249,22 @@ local function apply_mappings()
 	local map = vim.keymap.set
 	local m = M.opts.mappings
 
-	if m.term_escape and m.term_escape.lhs and m.term_escape.rhs then
+	-- terminal-mode mappings
+	if m.term_escape and m.term_escape.lhs then
 		map(
 			m.term_escape.mode,
 			m.term_escape.lhs,
-			m.term_escape.rhs,
+			M.escape,
 			{ noremap = true, silent = true, desc = m.term_escape.desc }
+		)
+	end
+
+	if m.term_escape_hide and m.term_escape_hide.lhs then
+		map(
+			m.term_escape_hide.mode,
+			m.term_escape_hide.lhs,
+			M.escape_hide,
+			{ noremap = true, silent = true, desc = m.term_escape_hide.desc }
 		)
 	end
 

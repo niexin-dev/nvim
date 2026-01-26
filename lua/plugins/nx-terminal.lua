@@ -23,7 +23,19 @@ return {
 			end,
 			desc = "Zoom",
 		},
-		{ "<leader>e", [[<C-\><C-n>]], mode = "t", desc = "Terminal escape" },
+
+		-- 终端模式：仅退出到 Normal
+		{ "<leader>ee", [[<C-\><C-n>]], mode = "t", desc = "Terminal: exit to Normal" },
+
+		-- 终端模式：退出到 Normal 并隐藏当前终端窗口
+		{
+			"<leader>ea",
+			function()
+				require("nx-terminal").escape_hide()
+			end,
+			mode = "t",
+			desc = "Terminal: exit + hide",
+		},
 	},
 	config = function()
 		require("nx-terminal").setup()
