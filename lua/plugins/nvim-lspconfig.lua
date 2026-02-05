@@ -133,5 +133,12 @@ return {
 		})
 		-- mason-lspconfig会自动使能对应的lsp
 		-- vim.lsp.enable('clangd')
+		-- 强制所有 LSP 浮窗（包括 hover）使用圆角边框
+		local orig = vim.lsp.util.open_floating_preview
+		function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+			opts = opts or {}
+			opts.border = opts.border or "rounded"
+			return orig(contents, syntax, opts, ...)
+		end
 	end,
 }
