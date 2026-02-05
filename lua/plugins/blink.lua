@@ -35,18 +35,16 @@ return {
 	-- 设为 false 以始终拉取 main 分支的最新源码
 	version = false,
 	-- 如需 snippet 来源，可在此添加相应依赖
-	-- dependencies = {
-	--     'rafamadriz/friendly-snippets',
-	--     "giuxtaposition/blink-cmp-copilot",
-	-- },
+	dependencies = {
+		"rafamadriz/friendly-snippets",
+		-- "giuxtaposition/blink-cmp-copilot",
+	},
 	-- 使用发布标签来下载预构建的二进制文件
 	-- 或者从源码构建，需要 nightly 版 Rust：https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
 	-- 如果使用 Nix，可以通过最新的 nightly Rust 执行下列命令构建：
 	-- build = 'nix run .#build-plugin', -- Nix 构建示例
 	build = build_from_source,
 
-	---@module 'blink.cmp'
-	---@type blink.cmp.Config
 	opts = {
 		-- “default”：与内置补全类似的按键映射
 		-- “super-tab”：与 VS Code 类似的按键映射（Tab 接受、方向键导航）
@@ -70,7 +68,7 @@ return {
 		-- 当前不需要 snippet 功能，故未启用相关来源
 		-- 借助 `opts_extend`，无需重新定义即可在其他地方扩展
 		sources = {
-			default = { "lsp", "path", "buffer", "cmdline", "omni", "codeium" },
+			default = { "lsp", "snippets", "path", "buffer", "cmdline", "omni", "codeium" },
 			-- default = { 'lsp', 'path', 'snippets', 'buffer', 'cmdline', 'copilot' }, -- 示例
 			-- providers = { -- 其他来源示例
 			--     copilot = {
@@ -114,7 +112,7 @@ return {
 				selection = { preselect = true, auto_insert = true },
 			},
 			accept = { auto_brackets = { enabled = true } }, -- 自动添加括号
-			documentation = { auto_show = true, auto_show_delay_ms = 200 }, -- 快速显示文档
+			documentation = { auto_show = true, auto_show_delay_ms = 200, window = { border = "rounded" } }, -- 快速显示文档
 		},
 		fuzzy = { implementation = "prefer_rust_with_warning" },
 	},
