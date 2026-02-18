@@ -23,13 +23,13 @@ return {
 		-- 定义不同策略使用的适配器
 		strategies = {
 			chat = { -- 聊天模式
-				adapter = "gemini_cli",
+				adapter = "deepseek",
 			},
 			inline = { -- 行内编辑模式
-				adapter = "gemini_cli",
+				adapter = "deepseek",
 			},
 			cmd = { -- 命令行模式
-				adapter = "gemini_cli",
+				adapter = "deepseek",
 			},
 		},
 		-- 适配器具体配置

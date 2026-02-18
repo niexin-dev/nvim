@@ -10,6 +10,8 @@ return {
 	},
 
 	config = function()
+		vim.lsp.log.set_level("ERROR")
+
 		local blink_capabilities = {}
 
 		local ok, blink_cmp = pcall(require, "blink.cmp")
@@ -103,25 +105,30 @@ return {
 		end
 
 		local augroup = vim.api.nvim_create_augroup("UserLspCapabilities", { clear = true })
-		vim.api.nvim_create_autocmd("LspAttach", {
-			group = augroup,
-			desc = "按需启用 LSP 功能，避免在不支持的服务器上浪费资源",
-			callback = function(event)
+			vim.api.nvim_create_autocmd("LspAttach", {
+				group = augroup,
+				desc = "按需启用 LSP 功能，避免在不支持的服务器上浪费资源",
+				callback = function(event)
 				local client = vim.lsp.get_client_by_id(event.data.client_id)
 				if not client then
 					return
 				end
 
-				local bufnr = event.buf
+					local bufnr = event.buf
 
-				if client.name == "stylua" then
-					client:stop()
-					return
-				end
+					if client.name == "stylua" then
+						client:stop()
+						return
+					end
 
-				if client:supports_method("textDocument/inlayHint") then
-					enable_inlay_hints(bufnr)
-				end
+					local ok_navic, navic = pcall(require, "nvim-navic")
+					if ok_navic and client.server_capabilities.documentSymbolProvider then
+						navic.attach(client, bufnr)
+					end
+
+					if client:supports_method("textDocument/inlayHint") then
+						enable_inlay_hints(bufnr)
+					end
 
 				if
 					client:supports_method("textDocument/semanticTokens/full")

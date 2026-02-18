@@ -1,89 +1,96 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter-textobjects",
-		},
-		-- 建议改成 BufReadPost，这样保证文件读完再建语法树
-		event = { "BufReadPost", "BufNewFile" },
+		lazy = false,
 		build = ":TSUpdate",
 		opts = {
-			highlight = { enable = true },
-			-- indent 有时候会和 C/C++ 的缩进习惯冲突，你可以按需开启
-			-- indent = { enable = true },
 			ensure_installed = {
 				"bash",
 				"c",
 				"cpp",
-				"diff",
 				"json",
-				"jsonc",
 				"lua",
-				"luadoc",
-				"luap",
 				"markdown",
-				"markdown_inline",
-				"html",
-				"latex",
-				"typst",
 				"yaml",
-				"regex",
-				"vim",
-				"vimdoc",
-				"python",
-				"rust",
-				"go",
-				"javascript",
-				"typescript",
-			},
-			incremental_selection = {
-				enable = true,
-				keymaps = {
-					init_selection = "<C-s>",
-					node_incremental = "<C-s>",
-					scope_incremental = false,
-					node_decremental = "<bs>",
-				},
-			},
-			textobjects = {
-				move = {
-					enable = true,
-					goto_next_start = {
-						["]f"] = "@function.outer",
-						["]c"] = "@class.outer",
-						["]a"] = "@parameter.inner",
-					},
-					goto_next_end = {
-						["]F"] = "@function.outer",
-						["]C"] = "@class.outer",
-						["]A"] = "@parameter.inner",
-					},
-					goto_previous_start = {
-						["[f"] = "@function.outer",
-						["[c"] = "@class.outer",
-						["[a"] = "@parameter.inner",
-					},
-					goto_previous_end = {
-						["[F"] = "@function.outer",
-						["[C"] = "@class.outer",
-						["[A"] = "@parameter.inner",
-					},
-				},
-				swap = {
-					enable = true,
-					swap_next = {
-						["<leader>a"] = "@parameter.inner",
-					},
-					swap_previous = {
-						["<leader>A"] = "@parameter.inner",
-					},
-				},
 			},
 		},
 		config = function(_, opts)
-			require("nvim-treesitter.configs").setup(opts)
+			local ts = require("nvim-treesitter")
+
+			ts.setup(opts)
+			-- jsonc 复用 json parser，避免 unsupported language 警告
+			vim.treesitter.language.register("json", "jsonc")
+			-- mdx 复用 markdown parser
+			vim.treesitter.language.register("markdown", "markdown.mdx")
+
+			-- 新版 treesitter 需要显式启动高亮
+			local group = vim.api.nvim_create_augroup("nx_treesitter_start", { clear = true })
+			vim.api.nvim_create_autocmd("FileType", {
+				group = group,
+				callback = function(args)
+					pcall(vim.treesitter.start, args.buf)
+				end,
+			})
 		end,
 	},
+	{
+		"nvim-treesitter/nvim-treesitter-textobjects",
+		branch = "main",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		opts = {
+			move = { set_jumps = true },
+		},
+			config = function(_, opts)
+				require("nvim-treesitter-textobjects").setup(opts)
+
+				local move = require("nvim-treesitter-textobjects.move")
+				local swap = require("nvim-treesitter-textobjects.swap")
+				local map = vim.keymap.set
+
+				map({ "n", "x", "o" }, "]f", function()
+					move.goto_next_start("@function.outer", "textobjects")
+				end, { desc = "TS Next Function Start" })
+				map({ "n", "x", "o" }, "]c", function()
+					move.goto_next_start("@class.outer", "textobjects")
+				end, { desc = "TS Next Class Start" })
+				map({ "n", "x", "o" }, "]a", function()
+					move.goto_next_start("@parameter.inner", "textobjects")
+				end, { desc = "TS Next Param" })
+				map({ "n", "x", "o" }, "]F", function()
+					move.goto_next_end("@function.outer", "textobjects")
+				end, { desc = "TS Next Function End" })
+				map({ "n", "x", "o" }, "]C", function()
+					move.goto_next_end("@class.outer", "textobjects")
+				end, { desc = "TS Next Class End" })
+				map({ "n", "x", "o" }, "]A", function()
+					move.goto_next_end("@parameter.inner", "textobjects")
+				end, { desc = "TS Next Param End" })
+				map({ "n", "x", "o" }, "[f", function()
+					move.goto_previous_start("@function.outer", "textobjects")
+				end, { desc = "TS Prev Function Start" })
+				map({ "n", "x", "o" }, "[c", function()
+					move.goto_previous_start("@class.outer", "textobjects")
+				end, { desc = "TS Prev Class Start" })
+				map({ "n", "x", "o" }, "[a", function()
+					move.goto_previous_start("@parameter.inner", "textobjects")
+				end, { desc = "TS Prev Param" })
+				map({ "n", "x", "o" }, "[F", function()
+					move.goto_previous_end("@function.outer", "textobjects")
+				end, { desc = "TS Prev Function End" })
+				map({ "n", "x", "o" }, "[C", function()
+					move.goto_previous_end("@class.outer", "textobjects")
+				end, { desc = "TS Prev Class End" })
+				map({ "n", "x", "o" }, "[A", function()
+					move.goto_previous_end("@parameter.inner", "textobjects")
+				end, { desc = "TS Prev Param End" })
+				map("n", "<leader>a", function()
+					swap.swap_next("@parameter.inner")
+				end, { desc = "TS Swap Next Param" })
+				map("n", "<leader>A", function()
+					swap.swap_previous("@parameter.inner")
+				end, { desc = "TS Swap Prev Param" })
+			end,
+		},
 
 	{
 		"nvim-treesitter/nvim-treesitter-context",

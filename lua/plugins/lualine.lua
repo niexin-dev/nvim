@@ -15,11 +15,11 @@ return {
 		always_divide_middle = true,
 		always_show_tabline = true,
 		globalstatus = false,
-		refresh = {
-			statusline = 100,
-			tabline = 100,
-			winbar = 100,
-		},
+			refresh = {
+				statusline = 300,
+				tabline = 300,
+				winbar = 300,
+			},
 		sections = {
 			lualine_a = { "mode" },
 			lualine_b = { "branch", "diff", "diagnostics" },
@@ -29,89 +29,65 @@ return {
 					local uv = vim.uv or vim.loop
 					local cache = ""
 					local last_update = -1000
-					local update_interval = 250
+					local update_interval = 200
 
-					local get_now = function()
+					local function now_ms()
 						if uv and uv.now then
 							return uv.now()
 						end
-
-						local loop = vim.loop
-						if loop and loop.hrtime then
-							return math.floor(loop.hrtime() / 1000000)
-						end
-
-						return update_interval + last_update
+						return math.floor(vim.loop.hrtime() / 1000000)
 					end
 
-					local status_opts = {
-						indicator_size = 100,
-						type_patterns = { "class", "function", "method" },
-						transform_fn = function(line, node)
-							local node_type = node:type()
+					local function treesitter_symbol()
+						local ok_node, node = pcall(vim.treesitter.get_node, { bufnr = 0 })
+						if not ok_node or not node then
+							return ""
+						end
 
-							-- 检查节点类型，如果是存储类别指示符、类型指示符或基本类型等，则返回空字符串，不包含在状态行中
-							if
-								node_type == "storage_class_specifier"
-								or node_type == "type_specifier"
-								or node_type == "primitive_type"
-								or node_type == "struct_specifier"
-							then
-								return ""
+						local cur = node
+						while cur do
+							local t = cur:type()
+							if t:find("function", 1, true) or t:find("method", 1, true) then
+								local text = vim.treesitter.get_node_text(cur, 0) or ""
+								local first = text:match("([^\n]+)") or ""
+								local before_params = first:match("^(.-)%s*%(") or first
+								local name = before_params:match("([%w_~]+)%s*$")
+								return name and name ~= "" and ("fn:" .. name) or ""
 							end
 
-							-- 从行中提取函数名：
-							-- 1. 匹配到第一个开括号 '(' 之前的所有内容
-							local before_params = line:match("^(.-)%s*%(")
-							if not before_params then
-								-- 如果没有括号，就取整行内容
-								before_params = line
-							end
+							cur = cur:parent()
+						end
 
-							-- 2. 从“类型 函数名”部分中提取最后一个单词（即函数名）
-							local func_name = before_params:match("[%w_]+$")
-
-							return func_name or ""
-						end,
-
-						separator = " -> ",
-						allow_duplicates = false,
-					}
+						return ""
+					end
 
 					return function()
-						local now = get_now()
-						if (now - last_update) < update_interval and cache ~= "" then
-							return cache
+						if vim.bo.buftype ~= "" then
+							return ""
 						end
 
+						local now = now_ms()
+						if (now - last_update) < update_interval then
+							return cache
+						end
 						last_update = now
 
-						if vim.bo.buftype ~= "" then
-							cache = ""
+						local ok_navic, navic = pcall(require, "nvim-navic")
+						if ok_navic and navic.is_available() then
+							local location = navic.get_location()
+							if location and location ~= "" then
+								cache = location
+								return cache
+							end
+						end
+
+						local ok_parser = pcall(vim.treesitter.get_parser, 0)
+						if ok_parser then
+							cache = treesitter_symbol()
 							return cache
 						end
 
-						local ft = vim.bo.filetype
-						if not ft or ft == "" then
-							cache = ""
-							return cache
-						end
-
-						local ok_parsers, parsers = pcall(require, "nvim-treesitter.parsers")
-						if not ok_parsers or not parsers.has_parser(ft) then
-							cache = ""
-							return cache
-						end
-
-						local ok_ts, ts = pcall(require, "nvim-treesitter")
-						if not ok_ts or type(ts.statusline) ~= "function" then
-							cache = ""
-							return cache
-						end
-
-						local ok_status, status = pcall(ts.statusline, status_opts)
-						cache = (ok_status and status) or ""
-
+						cache = ""
 						return cache
 					end
 				end)(),
