@@ -6,7 +6,17 @@ return {
 
 	keys = {
 		-- 设置查看头/源文件
-		{ "<leader>gh", "<cmd>LspClangdSwitchSourceHeader<cr>", desc = "Switch Source/Header (C/C++)" },
+		{
+			"<leader>gh",
+			function()
+				if vim.fn.exists(":LspClangdSwitchSourceHeader") == 2 then
+					vim.cmd.LspClangdSwitchSourceHeader()
+					return
+				end
+				vim.notify("clangd 未就绪，无法切换头/源文件", vim.log.levels.WARN)
+			end,
+			desc = "Switch Source/Header (C/C++)",
+		},
 	},
 
 	config = function()
@@ -140,12 +150,9 @@ return {
 		})
 		-- mason-lspconfig会自动使能对应的lsp
 		-- vim.lsp.enable('clangd')
-		-- 强制所有 LSP 浮窗（包括 hover）使用圆角边框
-		local orig = vim.lsp.util.open_floating_preview
-		function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-			opts = opts or {}
-			opts.border = opts.border or "rounded"
-			return orig(contents, syntax, opts, ...)
-		end
+		-- 使用 handler 配置边框，避免全局 monkey patch open_floating_preview
+		vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
+		vim.lsp.handlers["textDocument/signatureHelp"] =
+			vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 	end,
 }
