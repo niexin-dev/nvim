@@ -21,7 +21,13 @@ return {
 	opts = {
 		skip_input_prompt = true, -- "true" doesn't ask for input
 		cscope = {
-			picker = "fzf-lua",
+			picker = (function()
+				if #vim.api.nvim_list_uis() == 0 then
+					return "quickfix"
+				end
+				local ok = pcall(require, "fzf-lua")
+				return ok and "fzf-lua" or "quickfix"
+			end)(),
 			db_build_cmd = { script = "default", args = { "-bqR" } },
 		},
 	},
