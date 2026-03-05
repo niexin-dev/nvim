@@ -28,8 +28,8 @@ local function setup_mason_env()
 		return
 	end
 
-	-- 尝试访问 GitHub（HEAD 请求，超时 0.5 秒）
-	local job = vim.system({ "curl", "-I", "--max-time", "0.5", "https://github.com" }, { text = true })
+	-- 尝试访问 GitHub（HEAD 请求，超时 2 秒）
+	local job = vim.system({ "curl", "-I", "--max-time", "2", "https://github.com" }, { text = true })
 	local result = job:wait()
 
 	if result.code == 0 then
