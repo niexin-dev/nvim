@@ -1,5 +1,5 @@
 return {
-	"ggandor/leap.nvim",
+	url = "https://codeberg.org/andyg/leap.nvim",
 	dependencies = { "tpope/vim-repeat" }, -- enable '.' repeat support
 	-- lazy-load when user presses these keys (use <Plug> mappings provided by leap)
 	keys = {
