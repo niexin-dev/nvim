@@ -81,7 +81,7 @@ nvim
 - **nvim-lualine/lualine.nvim**：状态栏集成 Git、诊断、Treesitter 结构等信息。
 - **lukas-reineke/indent-blankline.nvim**：渲染缩进参考线。
 - **nvim-neo-tree/neo-tree.nvim**：文件树、缓冲区、Git 状态浏览。
-- **mhinz/vim-startify**：美观的启动页及会话管理。
+- **nx-dashboard（本地插件）**：启动页与快捷入口（位于 `lua/nx/nx-dashboard`）。
 - **folke/which-key.nvim**：可视化提示快捷键。
 - **ibhagwan/fzf-lua**：模糊搜索、LSP、Git、命令等统一入口。
 - **ggandor/leap.nvim**：快速跳转光标位置。
@@ -92,7 +92,7 @@ nvim
 - **saghen/blink.cmp**：Rust 编写的高性能补全引擎，集成 LSP、缓冲区、路径、命令行、Codeium 等来源。
 - **windwp/nvim-autopairs**、**kylechui/nvim-surround**、**numToStr/Comment.nvim**：配对括号、包裹、快速注释。
 - **neovim/nvim-lspconfig** + **williamboman/mason.nvim** 系列：统一安装与配置 `clangd`、`lua_ls`、`bashls`、`marksman`、`taplo` 等语言服务器；在 `BufReadPre` / `BufNewFile` 事件触发时懒加载，并于 `LspAttach` 针对当前服务器声明的能力（如内联提示、语义高亮）逐项启用，确保无关能力不会额外消耗资源。
-- **stevearc/conform.nvim**：统一格式化入口，整合 `stylua`、`isort`、`black`、`prettierd`、`clang-format`、`taplo` 等工具。
+- **stevearc/conform.nvim**：统一格式化入口，整合 `stylua`、`isort`、`black`、`prettierd`、`clang-format`、`taplo`、`bake(make)` 等工具。
 - **danymat/neogen**：一键生成函数注释模板。
 - **rachartier/tiny-inline-diagnostic.nvim**：LSP 诊断信息以内联气泡显示，关闭默认虚拟文本。
 
@@ -122,7 +122,7 @@ nvim
 ## 日常操作建议
 
 - 插件管理：执行 `Lazy`、`:Lazy sync`、`:Lazy check` 查看或更新插件。
-- 语言工具：执行 `Mason`、`:MasonToolsUpdate` 统一管理语言服务器与格式化器。
+- 语言工具：执行 `Mason`、`:MasonToolsUpdate` 统一管理语言服务器与格式化器；网络受限时可使用 `:MasonSmart` / `:MasonInstallSmart` / `:MasonUpdateSmart` 自动切换镜像。
 - 格式化：使用 `<leader>fm` 或 `:Format`（Conform 会优先调用外部工具，回退到 LSP）。
 - 搜索 / 跳转：优先使用 `FzfLua` 与 `leap.nvim`，可显著提升效率。
 - Git：`<leader>gg` 打开 Fugitive，`<leader>gj/gk` 快速浏览改动，配合 `lazygit` 使用体验更佳。
@@ -133,5 +133,6 @@ nvim
 - `options.lua` 已启用持久化 undo、关闭 swapfile、智能滚动、WSL / SSH 剪贴板适配等优化，可按需调整。
 - 插件配置均拆分在 `lua/plugins/*.lua`，删除某个插件只需移除对应文件并在 `:Lazy clean` 后重启。
 - `clang-format` 样式保存在仓库根目录的 `nx-clang-format`，可根据团队规范自定义。
+- Makefile 格式化使用 Conform 的 formatter 名 `bake`，实际可执行文件通常由 Mason 以 `mbake` 安装（`ConformInfo` 中会显示二者映射关系）。
 
 如需扩展新的语言或工具，建议优先通过 `mason.nvim` 管理；保持 `cargo`、`npm`、`pip` 等环境可用能让自动安装更加顺利。
