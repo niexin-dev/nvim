@@ -1,7 +1,7 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		lazy = false,
+		event = { "BufReadPost", "BufNewFile" },
 		build = ":TSUpdate",
 		opts = {
 			ensure_installed = {
@@ -35,6 +35,7 @@ return {
 		"nvim-treesitter/nvim-treesitter-textobjects",
 		branch = "main",
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		event = { "BufReadPost", "BufNewFile" },
 		opts = {
 			move = { set_jumps = true },
 		},
