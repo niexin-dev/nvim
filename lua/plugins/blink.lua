@@ -127,6 +127,13 @@ return {
 			},
 			accept = { auto_brackets = { enabled = true } }, -- 自动添加括号
 			documentation = { auto_show = true, auto_show_delay_ms = 200, window = { border = "rounded" } }, -- 快速显示文档
+			ghost_text = { enabled = false },
+		},
+		signature = {
+			enabled = true,
+			window = {
+				border = "rounded",
+			},
 		},
 		fuzzy = { implementation = "prefer_rust_with_warning" },
 	},
