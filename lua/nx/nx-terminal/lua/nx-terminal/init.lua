@@ -248,6 +248,9 @@ end
 local function apply_mappings()
 	local map = vim.keymap.set
 	local m = M.opts.mappings
+	if type(m) ~= "table" then
+		return
+	end
 
 	-- terminal-mode mappings
 	if m.term_escape and m.term_escape.lhs then

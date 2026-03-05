@@ -7,6 +7,7 @@ return {
 			function()
 				require("nx-terminal").new()
 			end,
+			mode = "n",
 			desc = "New terminal",
 		},
 		{
@@ -14,6 +15,7 @@ return {
 			function()
 				require("nx-terminal").toggle()
 			end,
+			mode = "n",
 			desc = "Toggle terminal",
 		},
 		{
@@ -21,13 +23,17 @@ return {
 			function()
 				require("nx-terminal").zoom_toggle()
 			end,
-			desc = "Zoom",
+			mode = "n",
+			desc = "Toggle maximize current buffer (via tab)",
 		},
-
-		-- 终端模式：仅退出到 Normal
-		{ "<leader>ee", [[<C-\><C-n>]], mode = "t", desc = "Terminal: exit to Normal" },
-
-		-- 终端模式：退出到 Normal 并隐藏当前终端窗口
+		{
+			"<leader>ee",
+			function()
+				require("nx-terminal").escape()
+			end,
+			mode = "t",
+			desc = "Terminal: exit to Normal",
+		},
 		{
 			"<leader>ea",
 			function()
@@ -38,6 +44,9 @@ return {
 		},
 	},
 	config = function()
-		require("nx-terminal").setup()
+		require("nx-terminal").setup({
+			-- Mappings are provided by lazy keys above to ensure first-hit execution.
+			mappings = false,
+		})
 	end,
 }
