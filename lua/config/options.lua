@@ -155,8 +155,8 @@ vim.opt.completeopt = "menu,menuone,noselect"
 vim.opt.inccommand = "split" -- 实时预览替换效果
 
 -- 关闭 netrw（用 neo-tree/其他替代）
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+-- vim.g.loaded_netrw = 1
+-- vim.g.loaded_netrwPlugin = 1
 
 -- 关闭 matchit（用不到就关）
 vim.g.loaded_matchit = 1
