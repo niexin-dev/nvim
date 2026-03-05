@@ -15,9 +15,7 @@ return {
 			},
 		},
 		config = function(_, opts)
-			local ts = require("nvim-treesitter")
-
-			ts.setup(opts)
+			require("nvim-treesitter.configs").setup(opts)
 			-- jsonc 复用 json parser，避免 unsupported language 警告
 			vim.treesitter.language.register("json", "jsonc")
 			-- mdx 复用 markdown parser
