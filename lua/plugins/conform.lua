@@ -39,6 +39,7 @@ return {
 			markdown = { "prettierd" },
 			json = { "prettierd" },
 			toml = { "taplo" },
+			-- Conform 的 formatter 名称是 "bake"，其可执行文件通常是 mason 安装的 "mbake"
 			make = { "bake" },
 		},
 		-- 默认的格式化设置
