@@ -87,6 +87,17 @@ return {
 					async = true,
 					-- ⬇⬇⬇ 新增：在无名 buffer / 特殊 buftype 里禁用 codeium
 					enabled = function(ctx)
+						local ok_codeium, codeium = pcall(require, "codeium")
+						if not ok_codeium or type(codeium) ~= "table" or type(codeium.s) ~= "table" then
+							return false
+						end
+						if codeium.s.enabled == false then
+							return false
+						end
+						if type(codeium.s.is_healthy) == "function" and not codeium.s:is_healthy() then
+							return false
+						end
+
 						local bufnr = ctx and ctx.bufnr or vim.api.nvim_get_current_buf()
 						local name = vim.api.nvim_buf_get_name(bufnr)
 						if name == nil or name == "" then
@@ -108,6 +119,9 @@ return {
 		},
 		-- 配置自动插入
 		completion = {
+			menu = {
+				border = "rounded",
+			},
 			list = {
 				selection = { preselect = true, auto_insert = true },
 			},
