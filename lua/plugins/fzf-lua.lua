@@ -1,6 +1,9 @@
 return {
 	"ibhagwan/fzf-lua",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
+	enabled = function()
+		return #vim.api.nvim_list_uis() > 0
+	end,
 
 	keys = {
 		{ "<leader>b", "<cmd>FzfLua buffers sort_mru=true sort_lastused=true<cr>", desc = "Buffers" },
@@ -42,6 +45,10 @@ return {
 	},
 
 	config = function(_, opts)
+		if #vim.api.nvim_list_uis() == 0 then
+			return
+		end
+
 		local fzf = require("fzf-lua")
 		local actions = fzf.actions
 
