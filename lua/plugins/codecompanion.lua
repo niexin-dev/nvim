@@ -244,6 +244,7 @@ return {
 - 只有在存在明确的不兼容变更时，才额外输出 BREAKING CHANGE: ...
 - 如果 diff 中有明确的 issue 编号，再输出 Closes #... 或 Refs #...
 - 没有这些信息时，不要输出任何脚注
+- 正文中的列表项统一使用 `- ` 作为前缀，不要使用 `•`、`*`、`1.` 或其他列表符号
 
 类型必须从以下列表选择：
 feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
