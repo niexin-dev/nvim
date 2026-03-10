@@ -178,3 +178,13 @@ vim.filetype.add({
 		mdx = "markdown.mdx",
 	},
 })
+
+-- 将 .h 文件的语法高亮设置为 C
+vim.g.c_syntax_for_h = 1
+
+-- 将 .h 文件的文件类型设置为 C
+vim.filetype.add({
+	extension = {
+		h = "c",
+	},
+})
