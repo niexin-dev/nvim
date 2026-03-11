@@ -7,7 +7,7 @@ return {
 	keys = {
 		-- 设置查看头/源文件
 		{
-			"<leader>gh",
+			"<leader>lh",
 			function()
 				if vim.fn.exists(":LspClangdSwitchSourceHeader") == 2 then
 					vim.cmd.LspClangdSwitchSourceHeader()
@@ -15,7 +15,7 @@ return {
 				end
 				vim.notify("clangd 未就绪，无法切换头/源文件", vim.log.levels.WARN)
 			end,
-			desc = "Switch Source/Header (C/C++)",
+			desc = "LSP Switch Source/Header (C/C++)",
 		},
 	},
 

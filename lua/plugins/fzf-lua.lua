@@ -19,12 +19,15 @@ return {
 		{ "<leader>Gc", "<cmd>FzfLua git_commits<CR>", desc = "Git Commits" },
 		{ "<leader>Gs", "<cmd>FzfLua git_status<CR>", desc = "Git Status" },
 		-- lsp
-		{ "<leader>gd", "<cmd>FzfLua lsp_definitions<CR>", desc = "LSP Definitions" },
-		{ "<leader>gr", "<cmd>FzfLua lsp_references<CR>", desc = "LSP References" },
-		{ "<leader>gD", "<cmd>FzfLua lsp_declarations<CR>", desc = "LSP Declarations" },
-		{ "<leader>gs", "<cmd>FzfLua lsp_live_workspace_symbols<CR>", desc = "LSP Symbols" },
-		{ "<leader>gx", "<cmd>FzfLua lsp_document_diagnostics<CR>", desc = "LSP Diagnostics" },
-		{ "<leader>qf", "<cmd>FzfLua lsp_code_actions<CR>", desc = "LSP Code action" },
+		{ "<leader>ld", "<cmd>FzfLua lsp_definitions<CR>", desc = "LSP Definitions" },
+		{ "<leader>lr", "<cmd>FzfLua lsp_references<CR>", desc = "LSP References" },
+		{ "<leader>lD", "<cmd>FzfLua lsp_declarations<CR>", desc = "LSP Declarations" },
+		{ "<leader>lm", "<cmd>FzfLua lsp_implementations<CR>", desc = "LSP Implementations" },
+		{ "<leader>lt", "<cmd>FzfLua lsp_typedefs<CR>", desc = "LSP Type Definitions" },
+		{ "<leader>ll", "<cmd>FzfLua lsp_document_symbols<CR>", desc = "LSP Document Symbols" },
+		{ "<leader>ls", "<cmd>FzfLua lsp_live_workspace_symbols<CR>", desc = "LSP Symbols" },
+		{ "<leader>lx", "<cmd>FzfLua lsp_document_diagnostics<CR>", desc = "LSP Diagnostics" },
+		{ "<leader>la", "<cmd>FzfLua lsp_code_actions<CR>", desc = "LSP Code action" },
 	},
 
 	opts = {

@@ -30,20 +30,20 @@ return {
 		keys = {
 			-- Incoming / Outgoing 调用树
 			{
-				"<leader>gi",
+				"<leader>li",
 				function()
 					vim.lsp.buf.incoming_calls()
 				end,
 				desc = "LSP: Incoming Calls (Calltree)",
 			},
 			{
-				"<leader>go",
+				"<leader>lo",
 				function()
 					vim.lsp.buf.outgoing_calls()
 				end,
 				desc = "LSP: Outgoing Calls (Calltree)",
 			},
-			{ "<leader>gp", "<cmd>LTPopOutCalltree<CR>", desc = "LSP: Calltree PopOut" },
+			{ "<leader>lp", "<cmd>LTPopOutCalltree<CR>", desc = "LSP: Calltree PopOut" },
 		},
 		config = function(_, opts)
 			require("litee.calltree").setup(opts)

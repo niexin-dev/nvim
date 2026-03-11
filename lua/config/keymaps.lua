@@ -24,19 +24,28 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 ----------------------------------------------------------------------
 
 -- LSP 重命名
-vim.keymap.set("n", "<leader>rn", ":lua vim.lsp.buf.rename()<CR>")
+vim.keymap.set("n", "<leader>ln", function()
+	vim.lsp.buf.rename()
+end, { desc = "LSP Rename" })
+vim.keymap.set("i", "<leader>lS", function()
+	vim.lsp.buf.signature_help()
+end, { desc = "LSP Signature Help" })
 
 -- 在当前文件所在目录创建新文件（自动填充路径）
-vim.keymap.set("n", "<leader>fn", ':new <C-R>=expand("%:p:h") . "/" <CR>')
+vim.keymap.set("n", "<leader>N", ':new <C-R>=expand("%:p:h") . "/" <CR>', { desc = "New file in cwd" })
 
 ----------------------------------------------------------------------
 --  屏幕行导航（处理换行后的多行显示）
 ----------------------------------------------------------------------
--- k 映射为 gk，按屏幕行移动，而不是按实际行
-vim.keymap.set({ "n", "v" }, "k", "gk", { noremap = true, silent = true })
+-- 无计数时按屏幕行移动，有计数时保留原生行为
+vim.keymap.set({ "n", "v" }, "k", function()
+	return vim.v.count == 0 and "gk" or "k"
+end, { expr = true, noremap = true, silent = true })
 
 -- j 映射为 gj
-vim.keymap.set({ "n", "v" }, "j", "gj", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "j", function()
+	return vim.v.count == 0 and "gj" or "j"
+end, { expr = true, noremap = true, silent = true })
 
 ----------------------------------------------------------------------
 --  更好的缩进：操作后保持可视模式
@@ -48,8 +57,3 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right" })
 -- 清除搜索高亮
 ----------------------------------------------------------------------
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
-
-----------------------------------------------------------------------
--- 快速保存
-----------------------------------------------------------------------
-vim.keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file", silent = true })

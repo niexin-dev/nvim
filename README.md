@@ -52,27 +52,25 @@ nvim
 | 模式 | 按键 | 功能 |
 | --- | --- | --- |
 | 插入 | `jk` | 返回正常模式。|
-| 正常 | `<leader>w` | 保存当前文件。|
 | 正常 | `<Esc>` | 清除搜索高亮。|
-| 正常 | `<leader>rn` | LSP 重命名符号。|
-| 正常 | `<leader>fn` | 在当前目录下创建新文件。|
+| 正常 | `<leader>N` | 在当前目录下创建新文件。|
 | 正常/可视 | `j`/`k` | 智能处理换行的移动（映射到 `gj`/`gk`）。|
 | 可视 | `<` / `>` | 调整缩进后自动保留选区。|
-| 正常 | `s` | `leap.nvim` 单窗口跳转。|
-| 正常 | `<leader>fe` / `<leader>fE` | 打开 / 聚焦 Neo-tree 文件侧边栏。|
+| 正常 | `<leader>w` / `<leader>W` | `leap.nvim` 单窗口 / 跨窗口跳转。|
+| 正常 | `<leader>e` / `<leader>E` | 打开 / 聚焦 Neo-tree 文件侧边栏。|
 | 正常 | `<leader>ff` / `<leader>fs` | 使用 Fzf-lua 搜索文件 / 全局模糊搜索。|
-| 正常 | `<leader>gd` / `<leader>gr` | Fzf-lua 跳转到定义 / 查看引用。|
-| 正常 | `<leader>tt` / `<leader>tv` / `<leader>tf` | ToggleTerm 打开终端（默认 / 垂直 / 浮动）。|
+| 正常 | `<leader>ld` / `<leader>lr` | Fzf-lua 跳转到定义 / 查看引用。|
+| 正常 | `<leader>tn` / `<leader>tt` / `<leader>tz` | 新建终端 / 显示隐藏终端 / 放大终端。|
 | 正常 | `<leader>sr` / `<leader>sw` | Spectre 全局搜索替换 / 搜索选中文本。|
-| 正常 | `<leader>ge` | Neogen 自动生成函数注释。|
+| 正常 | `<leader>ng` | Neogen 自动生成函数注释。|
 | 正常 | `<leader>gj` / `<leader>gk` | Gitsigns 跳转到下一 / 上一处变更。|
 | 正常 | `<leader>gg` | 打开 Fugitive Git 面板。|
 | 正常 | `<leader>?` | Which-key 查看当前缓冲区可用按键。|
 | 普通/可视 | `<leader>fm` | Conform.nvim 异步格式化当前缓冲区或选区。|
-| 正常 | `<leader>dm` | CodeCompanion 生成符合规范的提交信息。|
-| 可视 | `<leader>de` / `<leader>do` / `<leader>dc` / `<leader>dx` / `<leader>dt` | CodeCompanion 解释、优化、注释、修复、生成测试。|
+| 正常 | `<leader>am` | CodeCompanion 生成符合规范的提交信息。|
+| 可视 | `<leader>ae` / `<leader>ao` / `<leader>ac` / `<leader>af` / `<leader>at` | CodeCompanion 解释、优化、注释、修复、生成测试。|
 
-更多 Git 相关快捷键（如阶段 / 回滚 hunk）、书签管理命令等可参考对应插件的 `lua/plugins/*.lua` 文件。
+完整键位设计与说明请参考 [KEYMAPS.md](./KEYMAPS.md)。
 
 ## 插件概览
 
@@ -85,7 +83,7 @@ nvim
 - **folke/which-key.nvim**：可视化提示快捷键。
 - **ibhagwan/fzf-lua**：模糊搜索、LSP、Git、命令等统一入口。
 - **ggandor/leap.nvim**：快速跳转光标位置。
-- **akinsho/toggleterm.nvim**：多终端布局快捷切换。
+- **nx-terminal（本地插件）**：终端显示 / 隐藏、新建与标签页放大控制。
 
 ### 语法、补全与 LSP
 - **nvim-treesitter/nvim-treesitter**（附 textobjects / context）：增量解析、选区扩展、代码上下文浮动窗口。
@@ -116,7 +114,7 @@ nvim
 
 - `clangd` 默认附加 `--background-index`、`--clang-tidy`、`--completion-style=detailed`、`--function-arg-placeholders` 等参数，保证索引、补全与诊断信息充足且保持一致格式。
 - 自动探测 `compile_commands.json` 所在目录（支持仓库根目录、`build/`、`cmake-build-debug/`、`cmake-build-release/` 等常见路径），并通过 `--compile-commands-dir` 显式传递给 `clangd`，减少手动同步编译数据库的需求。
-- 启用了 `clangdFileStatus`，在状态栏显示当前编译单元索引进度；并提供 `<leader>gh` 快捷键，在源文件与头文件之间一键切换。
+- 启用了 `clangdFileStatus`，在状态栏显示当前编译单元索引进度；并提供 `<leader>lh` 快捷键，在源文件与头文件之间一键切换。
 - 与 `clang-format`、`cscope_maps.nvim` 等工具协同，形成“格式化 + 语义补全 + 全局索引”的 C/C++ 工作流。
 
 ## 日常操作建议

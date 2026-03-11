@@ -359,7 +359,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 	-- 快捷键绑定
 	keys = {
 		{
-			"<leader>dm", -- 快捷键组合
+			"<leader>am", -- 快捷键组合
 			function() -- 执行函数
 				require("codecompanion").prompt("nxcmt") -- 触发nxcmt提示
 			end,
@@ -368,14 +368,14 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			noremap = true, -- 非递归映射
 			silent = true, -- 静默执行
 		},
-		{ "<leader>di", "<cmd>CodeCompanionChat<cr>", desc = "CodeCompanionChat" },
-		{ "<leader>da", "<cmd>CodeCompanionActions<cr>", desc = "CodeCompanion Actions" },
-		{ "<leader>dg", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle CodeCompanion" },
-		{ "<leader>dd", "<cmd>CodeCompanion<cr>", desc = "CodeCompanion inline", mode = { "n", "v" } },
-		{ "<leader>dh", "<cmd>CodeCompanionHistory<cr>", desc = "CodeCompanion History" },
+		{ "<leader>ai", "<cmd>CodeCompanionChat<cr>", desc = "AI Chat" },
+		{ "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions" },
+		{ "<leader>at", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
+		{ "<leader>ae", "<cmd>CodeCompanion<cr>", desc = "AI Inline", mode = { "n", "v" } },
+		{ "<leader>ah", "<cmd>CodeCompanionHistory<cr>", desc = "AI History" },
 		-- 代码分析快捷键
 		{
-			"<leader>de",
+			"<leader>ae",
 			function()
 				require("codecompanion").prompt("explain")
 			end,
@@ -383,7 +383,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			mode = "v",
 		},
 		{
-			"<leader>do",
+			"<leader>ao",
 			function()
 				require("codecompanion").prompt("opt")
 			end,
@@ -391,7 +391,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			mode = "v",
 		},
 		{
-			"<leader>dc",
+			"<leader>ac",
 			function()
 				require("codecompanion").prompt("comment")
 			end,
@@ -399,7 +399,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			mode = "v",
 		},
 		{
-			"<leader>dx",
+			"<leader>af",
 			function()
 				require("codecompanion").prompt("fix")
 			end,
@@ -407,7 +407,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			mode = "v",
 		},
 		{
-			"<leader>dt",
+			"<leader>at",
 			function()
 				require("codecompanion").prompt("test")
 			end,

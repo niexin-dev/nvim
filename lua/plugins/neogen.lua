@@ -5,7 +5,7 @@ return {
 	cmd = "Neogen",
 	keys = {
 		{
-			"<leader>ge", -- 生成注释
+			"<leader>ng", -- 生成注释
 			function()
 				require("neogen").generate({})
 			end,

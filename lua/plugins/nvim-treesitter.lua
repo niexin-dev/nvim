@@ -37,55 +37,63 @@ return {
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 		event = { "BufReadPost", "BufNewFile" },
 		opts = {
+			select = {
+				lookahead = true,
+				selection_modes = {
+					["@parameter.outer"] = "v",
+					["@function.outer"] = "V",
+					["@class.outer"] = "V",
+				},
+				include_surrounding_whitespace = false,
+			},
 			move = { set_jumps = true },
 		},
 		config = function(_, opts)
 			require("nvim-treesitter-textobjects").setup(opts)
 
 			local move = require("nvim-treesitter-textobjects.move")
+			local select = require("nvim-treesitter-textobjects.select")
 			local swap = require("nvim-treesitter-textobjects.swap")
 			local map = vim.keymap.set
 
-			map({ "n", "x", "o" }, "]f", function()
+			map({ "x", "o" }, "af", function()
+				select.select_textobject("@function.outer", "textobjects")
+			end, { desc = "TS Select Around Function" })
+			map({ "x", "o" }, "if", function()
+				select.select_textobject("@function.inner", "textobjects")
+			end, { desc = "TS Select Inner Function" })
+			map({ "x", "o" }, "ac", function()
+				select.select_textobject("@class.outer", "textobjects")
+			end, { desc = "TS Select Around Class" })
+			map({ "x", "o" }, "ic", function()
+				select.select_textobject("@class.inner", "textobjects")
+			end, { desc = "TS Select Inner Class" })
+			map({ "x", "o" }, "as", function()
+				select.select_textobject("@local.scope", "locals")
+			end, { desc = "TS Select Scope" })
+
+			map({ "n", "x", "o" }, "<leader>jf", function()
 				move.goto_next_start("@function.outer", "textobjects")
 			end, { desc = "TS Next Function Start" })
-			map({ "n", "x", "o" }, "]c", function()
+			map({ "n", "x", "o" }, "<leader>jc", function()
 				move.goto_next_start("@class.outer", "textobjects")
 			end, { desc = "TS Next Class Start" })
-			map({ "n", "x", "o" }, "]a", function()
+			map({ "n", "x", "o" }, "<leader>ja", function()
 				move.goto_next_start("@parameter.inner", "textobjects")
 			end, { desc = "TS Next Param" })
-			map({ "n", "x", "o" }, "]F", function()
-				move.goto_next_end("@function.outer", "textobjects")
-			end, { desc = "TS Next Function End" })
-			map({ "n", "x", "o" }, "]C", function()
-				move.goto_next_end("@class.outer", "textobjects")
-			end, { desc = "TS Next Class End" })
-			map({ "n", "x", "o" }, "]A", function()
-				move.goto_next_end("@parameter.inner", "textobjects")
-			end, { desc = "TS Next Param End" })
-			map({ "n", "x", "o" }, "[f", function()
+			map({ "n", "x", "o" }, "<leader>kf", function()
 				move.goto_previous_start("@function.outer", "textobjects")
 			end, { desc = "TS Prev Function Start" })
-			map({ "n", "x", "o" }, "[c", function()
+			map({ "n", "x", "o" }, "<leader>kc", function()
 				move.goto_previous_start("@class.outer", "textobjects")
 			end, { desc = "TS Prev Class Start" })
-			map({ "n", "x", "o" }, "[a", function()
+			map({ "n", "x", "o" }, "<leader>ka", function()
 				move.goto_previous_start("@parameter.inner", "textobjects")
 			end, { desc = "TS Prev Param" })
-			map({ "n", "x", "o" }, "[F", function()
-				move.goto_previous_end("@function.outer", "textobjects")
-			end, { desc = "TS Prev Function End" })
-			map({ "n", "x", "o" }, "[C", function()
-				move.goto_previous_end("@class.outer", "textobjects")
-			end, { desc = "TS Prev Class End" })
-			map({ "n", "x", "o" }, "[A", function()
-				move.goto_previous_end("@parameter.inner", "textobjects")
-			end, { desc = "TS Prev Param End" })
-			map("n", "<leader>a", function()
+			map("n", "<leader>xj", function()
 				swap.swap_next("@parameter.inner")
 			end, { desc = "TS Swap Next Param" })
-			map("n", "<leader>A", function()
+			map("n", "<leader>xk", function()
 				swap.swap_previous("@parameter.inner")
 			end, { desc = "TS Swap Prev Param" })
 		end,

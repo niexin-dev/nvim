@@ -32,19 +32,19 @@ local defaults = {
 	new_term_when_has_term = "vsplit", -- when term exists, create on the right of last term
 	mappings = {
 		-- terminal-mode escape
-		-- <leader>ee: exit to Normal
-		term_escape = { mode = "t", lhs = "<leader>ee", desc = "Terminal: exit to Normal" },
+		-- <leader>te: exit to Normal
+		term_escape = { mode = "t", lhs = "<leader>te", desc = "Terminal: exit to Normal" },
 
-		-- <leader>ea: exit to Normal and hide current terminal window
-		term_escape_hide = { mode = "t", lhs = "<leader>ea", desc = "Terminal: exit + hide" },
+		-- <leader>th: exit to Normal and hide current terminal window
+		term_escape_hide = { mode = "t", lhs = "<leader>th", desc = "Terminal: exit + hide" },
 		-- create a new terminal
-		new_terminal = { mode = "n", lhs = "<leader>fw", desc = "New terminal" },
+		new_terminal = { mode = "n", lhs = "<leader>tn", desc = "New terminal" },
 
 		-- toggle terminals show/hide/new
-		toggle_terminal = { mode = "n", lhs = "<leader>fa", desc = "Toggle terminal" },
+		toggle_terminal = { mode = "n", lhs = "<leader>tt", desc = "Toggle terminal" },
 
 		-- tab-zoom
-		zoom_toggle = { mode = "n", lhs = "<leader>m", desc = "Toggle maximize current buffer (via tab)" },
+		zoom_toggle = { mode = "n", lhs = "<leader>tz", desc = "Toggle maximize current buffer (via tab)" },
 	},
 }
 
@@ -154,7 +154,7 @@ function M.escape_hide()
 	end)
 end
 
--- <leader>fw behavior: create a terminal
+-- <leader>tn behavior: create a terminal
 function M.new()
 	local last_term_win = best_last_terminal_win()
 
@@ -173,7 +173,7 @@ function M.new()
 	set_last_term_win(vim.api.nvim_get_current_win())
 end
 
--- <leader>fa behavior: show/hide/new
+-- <leader>tt behavior: show/hide/new
 function M.toggle()
 	local term_wins = list_terminal_windows()
 
@@ -217,7 +217,7 @@ function M.toggle()
 	M.new()
 end
 
--- <leader>m behavior: tab-based zoom toggle
+-- <leader>tz behavior: tab-based zoom toggle
 function M.zoom_toggle()
 	local current_tab = vim.api.nvim_get_current_tabpage()
 	local wins = vim.api.nvim_tabpage_list_wins(current_tab)

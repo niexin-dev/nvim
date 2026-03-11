@@ -3,9 +3,8 @@ return {
 	dependencies = { "tpope/vim-repeat" }, -- enable '.' repeat support
 	-- lazy-load when user presses these keys (use <Plug> mappings provided by leap)
 	keys = {
-		-- 's' in normal/visual/operator-pending modes -> <Plug>(leap)
 		{
-			"s",
+			"<leader>w",
 			"<Plug>(leap)",
 			mode = { "n", "x", "o" },
 			desc = "Leap: jump (forward)",
@@ -13,9 +12,8 @@ return {
 			silent = true,
 		},
 
-		-- 'S' in normal mode -> <Plug>(leap-from-window)
 		{
-			"S",
+			"<leader>W",
 			"<Plug>(leap-from-window)",
 			mode = "n",
 			desc = "Leap: jump from window",

@@ -3,7 +3,7 @@ return {
 	dir = vim.fn.stdpath("config") .. "/lua/nx/nx-terminal",
 	keys = {
 		{
-			"<leader>fw",
+			"<leader>tn",
 			function()
 				require("nx-terminal").new()
 			end,
@@ -11,7 +11,7 @@ return {
 			desc = "New terminal",
 		},
 		{
-			"<leader>fa",
+			"<leader>tt",
 			function()
 				require("nx-terminal").toggle()
 			end,
@@ -19,7 +19,7 @@ return {
 			desc = "Toggle terminal",
 		},
 		{
-			"<leader>m",
+			"<leader>tz",
 			function()
 				require("nx-terminal").zoom_toggle()
 			end,
@@ -27,7 +27,7 @@ return {
 			desc = "Toggle maximize current buffer (via tab)",
 		},
 		{
-			"<leader>ee",
+			"<leader>te",
 			function()
 				require("nx-terminal").escape()
 			end,
@@ -35,7 +35,7 @@ return {
 			desc = "Terminal: exit to Normal",
 		},
 		{
-			"<leader>ea",
+			"<leader>th",
 			function()
 				require("nx-terminal").escape_hide()
 			end,
