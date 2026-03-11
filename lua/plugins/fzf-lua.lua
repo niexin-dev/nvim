@@ -9,7 +9,7 @@ return {
 		{ "<leader>b", "<cmd>FzfLua buffers sort_mru=true sort_lastused=true<cr>", desc = "Buffers" },
 		{ "<leader>ff", "<cmd>FzfLua files<cr>", desc = "Files" },
 		{ "<leader>fl", "<cmd>FzfLua blines<cr>", desc = "Lines" },
-		{ "<leader>ft", "<cmd>FzfLua treesitter<cr>", desc = "Treesitter" },
+		{ "<leader>fw", "<cmd>FzfLua treesitter<cr>", desc = "Treesitter" },
 		-- search
 		{ "<leader>fs", "<cmd>FzfLua live_grep<cr>", desc = "Grep" },
 		{ "<leader>fr", "<cmd>FzfLua grep_cword<cr>", desc = "Grep word" },
