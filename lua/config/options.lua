@@ -171,6 +171,9 @@ vim.g.loaded_tutor_mode_plugin = 1
 -- 不使用 Perl / Ruby provider，关闭可减少启动检查和 health 警告
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
+-- 不使用 NodeJS / Python3 provider，关闭可减少启动检查和 health 警告
+vim.g.loaded_node_provider = 0
+vim.g.loaded_python3_provider = 0
 
 -- 识别 .mdx 文件，匹配 marksman 的 markdown.mdx filetype
 vim.filetype.add({
