@@ -15,7 +15,11 @@ return {
 			},
 		},
 		config = function(_, opts)
+			local ts = require("nvim-treesitter")
 			require("nvim-treesitter.config").setup(opts)
+			if opts.ensure_installed and #opts.ensure_installed > 0 then
+				ts.install(opts.ensure_installed)
+			end
 			-- jsonc 复用 json parser，避免 unsupported language 警告
 			vim.treesitter.language.register("json", "jsonc")
 			-- mdx 复用 markdown parser
