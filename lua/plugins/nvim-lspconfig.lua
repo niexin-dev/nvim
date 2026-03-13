@@ -1,11 +1,13 @@
 return {
 	"neovim/nvim-lspconfig",
+	dependencies = {
+		"b0o/SchemaStore.nvim",
+	},
 
 	-- 仅在读取 / 创建文件缓冲区时加载，避免在启动时抢占资源
 	event = { "BufReadPre", "BufNewFile" },
 
 	keys = {
-		-- 设置查看头/源文件
 		{
 			"<leader>lh",
 			function()
@@ -23,9 +25,8 @@ return {
 		vim.lsp.log.set_level("ERROR")
 
 		local blink_capabilities = {}
-
-		local ok, blink_cmp = pcall(require, "blink.cmp")
-		if ok and blink_cmp.get_lsp_capabilities then
+		local ok_blink, blink_cmp = pcall(require, "blink.cmp")
+		if ok_blink and blink_cmp.get_lsp_capabilities then
 			blink_capabilities = blink_cmp.get_lsp_capabilities()
 		end
 
@@ -41,7 +42,6 @@ return {
 			capabilities = capabilities,
 		})
 
-		-- stylua 仅作为外部格式化器使用，避免其通过 LSP 再次附着到 Lua 缓冲区
 		local stylua_cfg = vim.lsp.config["stylua"]
 		if stylua_cfg then
 			stylua_cfg.autostart = false
@@ -49,6 +49,7 @@ return {
 		end
 
 		local uv = vim.uv or vim.loop
+		local ok_schemastore, schemastore = pcall(require, "schemastore")
 
 		vim.lsp.config["clangd"] = {
 			cmd = {
@@ -59,7 +60,6 @@ return {
 				"--function-arg-placeholders",
 				"--header-insertion=never",
 			},
-			-- 修复在中文注释行下方插入新行导致的Change's rangeLength (1) doesn't match the computed range length (5)错误，造成error: -32602: trying to get AST for non-added document
 			offset_encoding = "utf-8",
 			init_options = {
 				clangdFileStatus = true,
@@ -90,7 +90,106 @@ return {
 			end,
 		}
 
-		-- 兼容 0.10 之前与之后的 enable 调用方式（旧版传 bufnr，新版传 opts 表）
+		vim.lsp.config["vtsls"] = {
+			root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+			settings = {
+				typescript = {
+					inlayHints = {
+						parameterNames = { enabled = "literals" },
+						parameterTypes = { enabled = true },
+						variableTypes = { enabled = true },
+						propertyDeclarationTypes = { enabled = true },
+						functionLikeReturnTypes = { enabled = true },
+						enumMemberValues = { enabled = true },
+					},
+				},
+				javascript = {
+					inlayHints = {
+						parameterNames = { enabled = "literals" },
+						parameterTypes = { enabled = true },
+						variableTypes = { enabled = true },
+						propertyDeclarationTypes = { enabled = true },
+						functionLikeReturnTypes = { enabled = true },
+						enumMemberValues = { enabled = true },
+					},
+				},
+			},
+		}
+
+		vim.lsp.config["eslint"] = {
+			root_markers = {
+				"eslint.config.js",
+				"eslint.config.mjs",
+				"eslint.config.cjs",
+				".eslintrc",
+				".eslintrc.js",
+				".eslintrc.cjs",
+				".git",
+			},
+			settings = {
+				workingDirectory = { mode = "auto" },
+			},
+		}
+
+		vim.lsp.config["tailwindcss"] = {
+			root_markers = {
+				"tailwind.config.js",
+				"tailwind.config.ts",
+				"postcss.config.js",
+				"postcss.config.cjs",
+				"package.json",
+				".git",
+			},
+			filetypes = {
+				"css",
+				"scss",
+				"html",
+				"javascript",
+				"javascriptreact",
+				"typescript",
+				"typescriptreact",
+			},
+		}
+
+		vim.lsp.config["jsonls"] = {
+			settings = {
+				json = {
+					validate = { enable = true },
+					format = { enable = false },
+					schemas = ok_schemastore and schemastore.json.schemas() or nil,
+				},
+			},
+		}
+
+		vim.lsp.config["basedpyright"] = {
+			root_markers = {
+				"pyproject.toml",
+				"setup.py",
+				"setup.cfg",
+				"requirements.txt",
+				".git",
+			},
+			settings = {
+				basedpyright = {
+					analysis = {
+						autoSearchPaths = true,
+						typeCheckingMode = "standard",
+						useLibraryCodeForTypes = true,
+					},
+				},
+			},
+		}
+
+		vim.lsp.config["ruff"] = {
+			root_markers = {
+				"pyproject.toml",
+				"ruff.toml",
+				".ruff.toml",
+				"setup.cfg",
+				".git",
+			},
+		}
+
 		local function enable_inlay_hints(bufnr)
 			local hint = vim.lsp.inlay_hint
 			if not (hint and hint.enable) then
@@ -102,7 +201,6 @@ return {
 			end
 		end
 
-		-- semantic tokens 同样在不同版本之间存在签名差异
 		local function enable_semantic_tokens(client, bufnr)
 			local semantic = vim.lsp.semantic_tokens
 			if not (semantic and semantic.enable) then
@@ -115,30 +213,30 @@ return {
 		end
 
 		local augroup = vim.api.nvim_create_augroup("UserLspCapabilities", { clear = true })
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = augroup,
-				desc = "按需启用 LSP 功能，避免在不支持的服务器上浪费资源",
-				callback = function(event)
+		vim.api.nvim_create_autocmd("LspAttach", {
+			group = augroup,
+			desc = "按需启用 LSP 功能，避免在不支持的服务器上浪费资源",
+			callback = function(event)
 				local client = vim.lsp.get_client_by_id(event.data.client_id)
 				if not client then
 					return
 				end
 
-					local bufnr = event.buf
+				local bufnr = event.buf
 
-					if client.name == "stylua" then
-						client:stop()
-						return
-					end
+				if client.name == "stylua" then
+					client:stop()
+					return
+				end
 
-					local ok_navic, navic = pcall(require, "nvim-navic")
-					if ok_navic and client.server_capabilities.documentSymbolProvider then
-						navic.attach(client, bufnr)
-					end
+				local ok_navic, navic = pcall(require, "nvim-navic")
+				if ok_navic and client.server_capabilities.documentSymbolProvider then
+					navic.attach(client, bufnr)
+				end
 
-					if client:supports_method("textDocument/inlayHint") then
-						enable_inlay_hints(bufnr)
-					end
+				if client:supports_method("textDocument/inlayHint") then
+					enable_inlay_hints(bufnr)
+				end
 
 				if
 					client:supports_method("textDocument/semanticTokens/full")
@@ -148,9 +246,7 @@ return {
 				end
 			end,
 		})
-		-- mason-lspconfig会自动使能对应的lsp
-		-- vim.lsp.enable('clangd')
-		-- 使用 handler 配置边框，避免全局 monkey patch open_floating_preview
+
 		vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
 		vim.lsp.handlers["textDocument/signatureHelp"] =
 			vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })

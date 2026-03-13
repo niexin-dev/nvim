@@ -8,9 +8,16 @@ return {
 				"bash",
 				"c",
 				"cpp",
+				"css",
+				"html",
+				"javascript",
 				"json",
 				"lua",
 				"markdown",
+				"python",
+				"scss",
+				"tsx",
+				"typescript",
 				"yaml",
 			},
 		},
@@ -20,12 +27,10 @@ return {
 			if opts.ensure_installed and #opts.ensure_installed > 0 then
 				ts.install(opts.ensure_installed)
 			end
-			-- jsonc 复用 json parser，避免 unsupported language 警告
+
 			vim.treesitter.language.register("json", "jsonc")
-			-- mdx 复用 markdown parser
 			vim.treesitter.language.register("markdown", "markdown.mdx")
 
-			-- 新版 treesitter 需要显式启动高亮
 			local group = vim.api.nvim_create_augroup("nx_treesitter_start", { clear = true })
 			vim.api.nvim_create_autocmd("FileType", {
 				group = group,
@@ -102,11 +107,9 @@ return {
 			end, { desc = "TS Swap Prev Param" })
 		end,
 	},
-
 	{
 		"nvim-treesitter/nvim-treesitter-context",
-		dependencies = { "nvim-treesitter/nvim-treesitter" }, -- 确保顺序正确
-		-- 这里我给你改成文件读完后再加载，比 VeryLazy 更「跟着文件走」
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
 		event = "BufReadPost",
 		opts = {
 			enable = true,

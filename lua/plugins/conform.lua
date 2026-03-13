@@ -34,10 +34,18 @@ return {
 			lua = { "stylua" },
 			python = { "isort", "black" },
 			javascript = { "prettierd" },
+			javascriptreact = { "prettierd" },
+			typescript = { "prettierd" },
+			typescriptreact = { "prettierd" },
 			c = { "clang_format" },
 			cpp = { "clang_format" },
 			markdown = { "prettierd" },
+			["markdown.mdx"] = { "prettierd" },
 			json = { "prettierd" },
+			yaml = { "prettierd" },
+			html = { "prettierd" },
+			css = { "prettierd" },
+			scss = { "prettierd" },
 			toml = { "taplo" },
 			-- Conform 的 formatter 名称是 "bake"，其可执行文件通常是 mason 安装的 "mbake"
 			make = { "bake" },
@@ -46,8 +54,21 @@ return {
 		default_format_opts = {
 			lsp_format = "fallback",
 		},
-		-- 设置保存时自动格式化（如需启用可解除注释）
-		-- format_on_save = { timeout_ms = 500 },
+		format_on_save = function(bufnr)
+			local ft = vim.bo[bufnr].filetype
+			local enabled = {
+				javascript = true,
+				javascriptreact = true,
+				typescript = true,
+				typescriptreact = true,
+				json = true,
+				python = true,
+			}
+
+			if enabled[ft] then
+				return { timeout_ms = 500, lsp_format = "fallback" }
+			end
+		end,
 		-- 在此自定义各个格式化器的额外行为
 		formatters = {
 			shfmt = {

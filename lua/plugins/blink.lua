@@ -125,7 +125,7 @@ return {
 			list = {
 				selection = { preselect = true, auto_insert = true },
 			},
-			accept = { auto_brackets = { enabled = true } }, -- 自动添加括号
+			accept = { auto_brackets = { enabled = false } },
 			documentation = { auto_show = true, auto_show_delay_ms = 200, window = { border = "rounded" } }, -- 快速显示文档
 			ghost_text = { enabled = false },
 		},

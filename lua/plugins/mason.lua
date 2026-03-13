@@ -7,6 +7,7 @@ local tools = {
 	"stylua", -- Lua 格式化工具
 	"isort", -- Python import 排序工具
 	"black", -- Python 代码格式化工具
+	"ruff", -- Python lint / fix 工具
 	-- taplo 由下方 LSP 安装，确保 CLI 与服务器一并提供
 }
 
@@ -17,6 +18,12 @@ local servers = {
 	"marksman",
 	"taplo", -- 这会安装 taplo CLI 工具和 LSP 服务器
 	"cmake",
+	"vtsls",
+	"eslint",
+	"tailwindcss",
+	"jsonls",
+	"basedpyright",
+	"ruff",
 }
 
 -- ===========================================================
