@@ -67,10 +67,10 @@ vim.opt.swapfile = false
 -- 设置文件编码格式
 vim.opt.fileencodings = "utf-8,euc-cn,ucs-bom,gb18030,gbk,gb2312,cp936"
 
-vim.opt.wrap = false
-vim.opt.linebreak = true
-vim.opt.breakindent = true
-vim.opt.showbreak = "↪ "
+vim.opt.wrap = true -- 启用换行
+vim.opt.linebreak = true -- 在单词边界换行（避免截断单词）
+vim.opt.breakindent = true -- 保持缩进
+vim.opt.showbreak = "↪ " -- 折行显示前缀符号（可选）
 
 -- 添加错误处理
 -- vim.diagnostic.config({ virtual_lines = true })
