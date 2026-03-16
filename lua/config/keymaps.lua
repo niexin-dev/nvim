@@ -57,3 +57,7 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right" })
 -- 清除搜索高亮
 ----------------------------------------------------------------------
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+
+-- diff visual sync
+vim.keymap.set("v", "do", ":'<,'>diffget<CR>", { desc = "diff get selection" })
+vim.keymap.set("v", "dp", ":'<,'>diffput<CR>", { desc = "diff put selection" })
