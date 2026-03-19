@@ -4,6 +4,7 @@ return {
 		event = { "BufReadPost", "BufNewFile" },
 		build = ":TSUpdate",
 		opts = {
+			-- 按需自动安装的 parser 白名单：打开对应 filetype 时，如本地缺失则自动安装
 			ensure_installed = {
 				"bash",
 				"c",
@@ -24,18 +25,56 @@ return {
 		config = function(_, opts)
 			local ts = require("nvim-treesitter")
 			require("nvim-treesitter.config").setup(opts)
-			if opts.ensure_installed and #opts.ensure_installed > 0 then
-				ts.install(opts.ensure_installed)
-			end
 
 			vim.treesitter.language.register("json", "jsonc")
 			vim.treesitter.language.register("markdown", "markdown.mdx")
 
-			local group = vim.api.nvim_create_augroup("nx_treesitter_start", { clear = true })
+			-- 把白名单列表转成 set，FileType 回调里判断更直接。
+			local auto_install_whitelist = {}
+			for _, lang in ipairs(opts.ensure_installed or {}) do
+				auto_install_whitelist[lang] = true
+			end
+
+			-- 同一会话里每种语言只尝试安装一次，避免连续打开多个 buffer 时重复触发。
+			local install_attempted = {}
+			-- 少数 filetype 和 parser 名不一致，这里做最小映射。
+			local ft_to_lang = {
+				jsonc = "json",
+				["markdown.mdx"] = "markdown",
+			}
+
+			-- 用单独的 augroup 管理按 filetype 自动安装 parser 的 autocmd。
+			local group = vim.api.nvim_create_augroup("nx_treesitter_install", { clear = true })
 			vim.api.nvim_create_autocmd("FileType", {
 				group = group,
+				pattern = "*",
 				callback = function(args)
-					pcall(vim.treesitter.start, args.buf)
+					local ft = vim.bo[args.buf].filetype
+					local lang = ft_to_lang[ft] or ft
+					if not auto_install_whitelist[lang] or install_attempted[lang] then
+						return
+					end
+
+					local installed = ts.get_installed()
+					if vim.tbl_contains(installed, lang) then
+						return
+					end
+
+					install_attempted[lang] = true
+					local ok, installer = pcall(ts.install, { lang })
+					if not ok or not installer then
+						return
+					end
+
+					if type(installer.wait) == "function" then
+						-- 安装完成后再为当前 buffer 启动 treesitter，避免还要手动重载文件。
+						vim.schedule(function()
+							local done = pcall(installer.wait, installer, 300000)
+							if done then
+								pcall(vim.treesitter.start, args.buf)
+							end
+						end)
+					end
 				end,
 			})
 		end,
