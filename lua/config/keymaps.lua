@@ -28,7 +28,7 @@ vim.keymap.set("n", "<leader>ln", function()
 	vim.lsp.buf.rename()
 end, { desc = "LSP Rename" })
 vim.keymap.set("i", "<leader>lS", function()
-	vim.lsp.buf.signature_help()
+	vim.lsp.buf.signature_help({ border = "rounded" })
 end, { desc = "LSP Signature Help" })
 
 -- 在当前文件所在目录创建新文件（自动填充路径）
