@@ -23,13 +23,13 @@ return {
 		-- 定义不同策略使用的适配器
 		strategies = {
 			chat = { -- 聊天模式
-				adapter = "deepseek",
+				adapter = "codex",
 			},
 			inline = { -- 行内编辑模式
-				adapter = "deepseek",
+				adapter = "codex",
 			},
 			cmd = { -- 命令行模式
-				adapter = "deepseek",
+				adapter = "codex",
 			},
 		},
 		-- 适配器具体配置
@@ -88,6 +88,24 @@ return {
 				end,
 			},
 			acp = {
+				codex = function()
+					local command = { "codex-acp" }
+					if vim.fn.executable("codex-acp") ~= 1 then
+						command = { "npx", "@zed-industries/codex-acp" }
+					end
+
+						return require("codecompanion.adapters").extend("codex", {
+							commands = {
+								default = command,
+							},
+							defaults = {
+								auth_method = "chatgpt", -- "openai-api-key"|"codex-api-key"|"chatgpt"
+								model = "gpt-5.4-mini",
+								mode = "medium",
+								timeout = 20000,
+							},
+						})
+					end,
 				gemini_cli = function()
 					return require("codecompanion.adapters").extend("gemini_cli", {
 						defaults = {
