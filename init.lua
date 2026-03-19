@@ -1,6 +1,3 @@
--- 启用 Lua 模块缓存以提升性能
-vim.loader.enable()
-
 -- 配置neovim选项
 require("config.options")
 -- 配置neovim快捷键

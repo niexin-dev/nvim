@@ -1,5 +1,11 @@
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
+-- 尽早启用 Lua 模块缓存，后续 require 才能受益
+if vim.loader and vim.loader.enable then
+	vim.loader.enable()
+end
+
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
 	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
