@@ -34,6 +34,14 @@ end, { desc = "LSP Signature Help" })
 -- 在当前文件所在目录创建新文件（自动填充路径）
 vim.keymap.set("n", "<leader>N", ':new <C-R>=expand("%:p:h") . "/" <CR>', { desc = "New file in cwd" })
 
+-- 诊断跳转
+vim.keymap.set("n", "<leader>jd", function()
+	vim.diagnostic.jump({ count = 1, float = false })
+end, { desc = "Jump to next diagnostic" })
+vim.keymap.set("n", "<leader>kd", function()
+	vim.diagnostic.jump({ count = -1, float = false })
+end, { desc = "Jump to previous diagnostic" })
+
 ----------------------------------------------------------------------
 --  屏幕行导航（处理换行后的多行显示）
 ----------------------------------------------------------------------
