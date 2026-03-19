@@ -351,12 +351,12 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 					-- Picker interface (auto resolved to a valid picker)
 					picker = "fzf-lua", --- ("telescope", "snacks", "fzf-lua", or "default")
 					---Automatically generate titles for new chats
-					auto_generate_title = true,
+					auto_generate_title = false,
 					title_generation_opts = {
 						---Adapter for generating titles (defaults to current chat adapter)
-						adapter = "gemini",
+						adapter = "deepseek",
 						---Model for generating titles (defaults to current chat model)
-						model = "gemini-2.5-flash",
+						model = "deepseek-chat",
 						---Number of user prompts after which to refresh the title (0 to disable)
 						refresh_every_n_prompts = 0, -- e.g., 3 to refresh after every 3rd user prompt
 						---Maximum number of times to refresh the title (default: 3)
