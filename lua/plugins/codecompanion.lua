@@ -94,18 +94,18 @@ return {
 						command = { "npx", "@zed-industries/codex-acp" }
 					end
 
-						return require("codecompanion.adapters").extend("codex", {
-							commands = {
-								default = command,
-							},
-							defaults = {
-								auth_method = "chatgpt", -- "openai-api-key"|"codex-api-key"|"chatgpt"
-								model = "gpt-5.4-mini",
-								mode = "medium",
-								timeout = 20000,
-							},
-						})
-					end,
+					return require("codecompanion.adapters").extend("codex", {
+						commands = {
+							default = command,
+						},
+						defaults = {
+							auth_method = "chatgpt", -- "openai-api-key"|"codex-api-key"|"chatgpt"
+							model = "gpt-5.4-mini",
+							mode = "medium",
+							timeout = 20000,
+						},
+					})
+				end,
 				gemini_cli = function()
 					return require("codecompanion.adapters").extend("gemini_cli", {
 						defaults = {
@@ -124,12 +124,12 @@ return {
 				opts = {
 					index = 1,
 					is_slash_cmd = true,
-					alias = "explain",
+					alias = "explain_cn",
 				},
 				prompts = {
 					{
 						role = "user",
-						content = "请详细解释以下代码的功能、逻辑和关键点，用中文回答：\n\n```{{filetype}}\n{{selection}}\n```",
+						content = "请详细解释以下代码的功能、逻辑和关键点。回答必须全部使用简体中文，不要输出英文解释、英文标题或英文要点；如需引用代码标识符，可保留原始标识符。\n\n```{{filetype}}\n{{selection}}\n```",
 						opts = { contains_code = true },
 					},
 				},
@@ -141,12 +141,12 @@ return {
 				opts = {
 					index = 2,
 					is_slash_cmd = true,
-					alias = "opt",
+					alias = "opt_cn",
 				},
 				prompts = {
 					{
 						role = "user",
-						content = "请优化以下代码，提高性能、可读性和最佳实践，保持原有功能不变：\n\n```{{filetype}}\n{{selection}}\n```",
+						content = "请优化以下代码，提高性能、可读性和最佳实践，保持原有功能不变。除代码本身的语法关键字、库名、API 名称外，说明文字必须全部使用简体中文；如果需要新增或修改注释，注释也必须是简体中文。\n\n```{{filetype}}\n{{selection}}\n```",
 						opts = { contains_code = true },
 					},
 				},
@@ -158,12 +158,12 @@ return {
 				opts = {
 					index = 3,
 					is_slash_cmd = true,
-					alias = "comment",
+					alias = "comment_cn",
 				},
 				prompts = {
 					{
 						role = "user",
-						content = "请为以下代码添加详细的中文注释，解释每个重要部分的作用：\n\n```{{filetype}}\n{{selection}}\n```",
+						content = "请为以下代码添加详细的简体中文注释，解释每个重要部分的作用。所有新增注释都必须使用简体中文，不要输出英文注释；除代码本身必要的关键字、类型名、函数名、库名外，不要加入英文说明。\n\n```{{filetype}}\n{{selection}}\n```",
 						opts = { contains_code = true },
 					},
 				},
@@ -175,12 +175,12 @@ return {
 				opts = {
 					index = 4,
 					is_slash_cmd = true,
-					alias = "fix",
+					alias = "fix_cn",
 				},
 				prompts = {
 					{
 						role = "user",
-						content = "请分析以下代码中可能存在的问题并提供修复方案：\n\n```{{filetype}}\n{{selection}}\n```",
+						content = "请分析以下代码中可能存在的问题并提供修复方案。回答必须全部使用简体中文，不要输出英文分析、英文标题或英文列表；如需给出代码修改建议，代码外的说明文字必须为中文。\n\n```{{filetype}}\n{{selection}}\n```",
 						opts = { contains_code = true },
 					},
 				},
@@ -192,12 +192,12 @@ return {
 				opts = {
 					index = 5,
 					is_slash_cmd = true,
-					alias = "test",
+					alias = "test_cn",
 				},
 				prompts = {
 					{
 						role = "user",
-						content = "请为以下代码生成完整的测试用例，包括正常情况、边界情况和异常情况：\n\n```{{filetype}}\n{{selection}}\n```",
+						content = "请为以下代码生成完整的测试用例，包括正常情况、边界情况和异常情况。说明文字、测试意图和必要注释必须全部使用简体中文；仅代码语法、断言 API、库名和标识符可以保留原文。\n\n```{{filetype}}\n{{selection}}\n```",
 						opts = { contains_code = true },
 					},
 				},
@@ -210,30 +210,30 @@ return {
 					index = 10, -- 排序位置
 					is_default = true, -- 设为默认提示
 					is_slash_cmd = true, -- 支持斜杠命令
-					alias = "nxcmt", -- 快捷名称
+					alias = "commit_cn", -- 快捷名称
 					auto_submit = true, -- 自动提交
 				},
 				-- 提示内容定义
 				prompts = {
-						{
-							role = "user", -- 用户角色
-							content = function() -- 动态生成内容
-								local staged_diff = vim.fn.system("git diff --no-ext-diff --staged")
-								if vim.v.shell_error ~= 0 then
-									return "无法读取暂存区 diff，请先确认当前目录是 git 仓库，并且存在可读取的暂存改动。"
-								end
+					{
+						role = "user", -- 用户角色
+						content = function() -- 动态生成内容
+							local staged_diff = vim.fn.system("git diff --no-ext-diff --staged")
+							if vim.v.shell_error ~= 0 then
+								return "无法读取暂存区 diff，请先确认当前目录是 git 仓库，并且存在可读取的暂存改动。"
+							end
 
-								if staged_diff:gsub("%s+", "") == "" then
-									return "暂存区为空，无法生成 commit message。请先执行 git add 后再试。"
-								end
+							if staged_diff:gsub("%s+", "") == "" then
+								return "暂存区为空，无法生成 commit message。请先执行 git add 后再试。"
+							end
 
-								local staged_stat = vim.fn.system("git diff --no-ext-diff --staged --stat")
-								if vim.v.shell_error ~= 0 then
-									staged_stat = "无法读取 diff stat"
-								end
+							local staged_stat = vim.fn.system("git diff --no-ext-diff --staged --stat")
+							if vim.v.shell_error ~= 0 then
+								staged_stat = "无法读取 diff stat"
+							end
 
-								return string.format(
-									[[
+							return string.format(
+								[[
 你是一位精通 Conventional Commits 的软件工程师。
 请基于下方提供的暂存区变更摘要与完整 git diff，生成一份“便于人工继续修改”的中文 commit message 草稿。
 
@@ -352,11 +352,11 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 					picker = "fzf-lua", --- ("telescope", "snacks", "fzf-lua", or "default")
 					---Automatically generate titles for new chats
 					auto_generate_title = true,
-						title_generation_opts = {
-							---Adapter for generating titles (defaults to current chat adapter)
-							adapter = "gemini",
-							---Model for generating titles (defaults to current chat model)
-							model = "gemini-2.5-flash",
+					title_generation_opts = {
+						---Adapter for generating titles (defaults to current chat adapter)
+						adapter = "gemini",
+						---Model for generating titles (defaults to current chat model)
+						model = "gemini-2.5-flash",
 						---Number of user prompts after which to refresh the title (0 to disable)
 						refresh_every_n_prompts = 0, -- e.g., 3 to refresh after every 3rd user prompt
 						---Maximum number of times to refresh the title (default: 3)
@@ -379,7 +379,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		{
 			"<leader>am", -- 快捷键组合
 			function() -- 执行函数
-				require("codecompanion").prompt("nxcmt") -- 触发nxcmt提示
+				require("codecompanion").prompt("commit_cn") -- 触发commit提示
 			end,
 			desc = "Generate commit message", -- 描述
 			mode = "n", -- 普通模式生效
@@ -395,7 +395,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		{
 			"<leader>ax",
 			function()
-				require("codecompanion").prompt("explain")
+				require("codecompanion").prompt("explain_cn")
 			end,
 			desc = "Explain code",
 			mode = "v",
@@ -403,7 +403,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		{
 			"<leader>ao",
 			function()
-				require("codecompanion").prompt("opt")
+				require("codecompanion").prompt("opt_cn")
 			end,
 			desc = "Optimize code",
 			mode = "v",
@@ -411,7 +411,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		{
 			"<leader>ac",
 			function()
-				require("codecompanion").prompt("comment")
+				require("codecompanion").prompt("comment_cn")
 			end,
 			desc = "Add comments",
 			mode = "v",
@@ -419,7 +419,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		{
 			"<leader>af",
 			function()
-				require("codecompanion").prompt("fix")
+				require("codecompanion").prompt("fix_cn")
 			end,
 			desc = "AI Fix bug",
 			mode = "v",
@@ -427,7 +427,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		{
 			"<leader>ar",
 			function()
-				require("codecompanion").prompt("test")
+				require("codecompanion").prompt("test_cn")
 			end,
 			desc = "Generate tests",
 			mode = "v",
