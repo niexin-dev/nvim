@@ -69,6 +69,9 @@ return {
 		-- 借助 `opts_extend`，无需重新定义即可在其他地方扩展
 		sources = {
 			default = { "lsp", "snippets", "path", "buffer", "cmdline", "omni", "codeium" },
+			per_filetype = {
+				codecompanion = { "codecompanion" },
+			},
 			-- default = { 'lsp', 'path', 'snippets', 'buffer', 'cmdline', 'copilot' }, -- 示例
 			-- providers = { -- 其他来源示例
 			--     copilot = {

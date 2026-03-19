@@ -351,12 +351,12 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 					-- Picker interface (auto resolved to a valid picker)
 					picker = "fzf-lua", --- ("telescope", "snacks", "fzf-lua", or "default")
 					---Automatically generate titles for new chats
-					auto_generate_title = false,
-					title_generation_opts = {
-						---Adapter for generating titles (defaults to current chat adapter)
-						adapter = nil, -- "copilot"
-						---Model for generating titles (defaults to current chat model)
-						model = nil, -- "gpt-4o"
+					auto_generate_title = true,
+						title_generation_opts = {
+							---Adapter for generating titles (defaults to current chat adapter)
+							adapter = "gemini",
+							---Model for generating titles (defaults to current chat model)
+							model = "gemini-2.5-flash",
 						---Number of user prompts after which to refresh the title (0 to disable)
 						refresh_every_n_prompts = 0, -- e.g., 3 to refresh after every 3rd user prompt
 						---Maximum number of times to refresh the title (default: 3)
@@ -388,12 +388,12 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 		},
 		{ "<leader>ai", "<cmd>CodeCompanionChat<cr>", desc = "AI Chat" },
 		{ "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions" },
-		{ "<leader>at", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
+		{ "<leader>ag", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
 		{ "<leader>ae", "<cmd>CodeCompanion<cr>", desc = "AI Inline", mode = { "n", "v" } },
 		{ "<leader>ah", "<cmd>CodeCompanionHistory<cr>", desc = "AI History" },
 		-- 代码分析快捷键
 		{
-			"<leader>ae",
+			"<leader>ax",
 			function()
 				require("codecompanion").prompt("explain")
 			end,
@@ -425,7 +425,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			mode = "v",
 		},
 		{
-			"<leader>at",
+			"<leader>ar",
 			function()
 				require("codecompanion").prompt("test")
 			end,
