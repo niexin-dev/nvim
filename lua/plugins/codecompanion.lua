@@ -125,6 +125,7 @@ return {
 					index = 1,
 					is_slash_cmd = true,
 					alias = "explain_cn",
+					auto_submit = true,
 				},
 				prompts = {
 					{
@@ -176,6 +177,7 @@ return {
 					index = 4,
 					is_slash_cmd = true,
 					alias = "fix_cn",
+					auto_submit = true,
 				},
 				prompts = {
 					{
@@ -193,6 +195,7 @@ return {
 					index = 5,
 					is_slash_cmd = true,
 					alias = "test_cn",
+					auto_submit = true,
 				},
 				prompts = {
 					{
