@@ -74,7 +74,7 @@ return {
 				ollama = function()
 					return require("codecompanion.adapters").extend("ollama", {
 						env = {
-							url = "http://192.168.5.225:11434",
+							url = vim.env.OLLAMA_HOST or "http://127.0.0.1:11434",
 						},
 						schema = {
 							model = {

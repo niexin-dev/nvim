@@ -1,7 +1,6 @@
 return {
 	"MattesGroeger/vim-bookmarks",
 	name = "bookmarks",
-	event = "BufReadPost", -- 确保插件在文件加载时启动
 	cmd = {
 		"BookmarkToggle",
 		"BookmarkAnnotate",
@@ -10,12 +9,13 @@ return {
 		"BookmarkNext",
 		"BookmarkPrev",
 	},
-	config = function()
+	init = function()
 		vim.g.bookmark_sign = "⚑"
 		vim.g.bookmark_highlight_group = "BookmarkLine"
 		vim.g.bookmark_highlight_lines = 1
 		vim.g.bookmark_auto_save = 0
-		vim.opt.termguicolors = true
+	end,
+	config = function()
 		vim.api.nvim_set_hl(0, "BookmarkLine", {
 			-- 对于真彩色终端 (termguicolors 开启时):
 			-- 使用十六进制颜色值设置背景和前景
@@ -30,4 +30,3 @@ return {
 		})
 	end,
 }
-

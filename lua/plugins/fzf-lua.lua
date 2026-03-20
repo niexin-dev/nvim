@@ -83,10 +83,10 @@ return {
 			local git_root = result[1]
 
 			if vim.v.shell_error == 0 and git_root and git_root ~= "" then
-				-- 找到 git 仓库，cd 到仓库根目录
+				-- 有意切换全局 cwd，让后续 Git/搜索/终端都以项目根目录工作。
 				vim.cmd("cd " .. vim.fn.fnameescape(git_root))
 			else
-				-- 不在 git 仓库里，就 cd 到文件所在目录
+				-- 非 Git 文件则退回到文件所在目录，保持后续命令有稳定根目录。
 				vim.cmd("cd " .. vim.fn.fnameescape(dir))
 			end
 		end

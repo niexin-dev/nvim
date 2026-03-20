@@ -15,11 +15,11 @@ return {
 		always_divide_middle = true,
 		always_show_tabline = true,
 		globalstatus = false,
-			refresh = {
-				statusline = 300,
-				tabline = 300,
-				winbar = 300,
-			},
+		refresh = {
+			statusline = 300,
+			tabline = 300,
+			winbar = 300,
+		},
 		sections = {
 			lualine_a = { "mode" },
 			lualine_b = { "branch", "diff", "diagnostics" },
@@ -27,8 +27,7 @@ return {
 				{ "filename", path = 1 },
 				(function()
 					local uv = vim.uv or vim.loop
-					local cache = ""
-					local last_update = -1000
+					local cache = {}
 					local update_interval = 200
 
 					local function now_ms()
@@ -38,8 +37,8 @@ return {
 						return math.floor(vim.loop.hrtime() / 1000000)
 					end
 
-					local function treesitter_symbol()
-						local ok_node, node = pcall(vim.treesitter.get_node, { bufnr = 0 })
+					local function treesitter_symbol(bufnr)
+						local ok_node, node = pcall(vim.treesitter.get_node, { bufnr = bufnr })
 						if not ok_node or not node then
 							return ""
 						end
@@ -48,7 +47,7 @@ return {
 						while cur do
 							local t = cur:type()
 							if t:find("function", 1, true) or t:find("method", 1, true) then
-								local text = vim.treesitter.get_node_text(cur, 0) or ""
+								local text = vim.treesitter.get_node_text(cur, bufnr) or ""
 								local first = text:match("([^\n]+)") or ""
 								local before_params = first:match("^(.-)%s*%(") or first
 								local name = before_params:match("([%w_~]+)%s*$")
@@ -62,33 +61,46 @@ return {
 					end
 
 					return function()
-						if vim.bo.buftype ~= "" then
+						local winid = tonumber(vim.g.statusline_winid) or vim.api.nvim_get_current_win()
+						if not vim.api.nvim_win_is_valid(winid) then
 							return ""
 						end
 
+						local bufnr = vim.api.nvim_win_get_buf(winid)
+						if vim.bo[bufnr].buftype ~= "" then
+							cache[winid] = nil
+							return ""
+						end
+
+						local state = cache[winid]
 						local now = now_ms()
-						if (now - last_update) < update_interval then
-							return cache
+						if state and state.bufnr == bufnr and (now - state.last_update) < update_interval then
+							return state.value
 						end
-						last_update = now
 
-						local ok_navic, navic = pcall(require, "nvim-navic")
-						if ok_navic and navic.is_available() then
-							local location = navic.get_location()
-							if location and location ~= "" then
-								cache = location
-								return cache
+						local value = vim.api.nvim_win_call(winid, function()
+							local ok_navic, navic = pcall(require, "nvim-navic")
+							if ok_navic and navic.is_available() then
+								local location = navic.get_location()
+								if location and location ~= "" then
+									return location
+								end
 							end
-						end
 
-						local ok_parser = pcall(vim.treesitter.get_parser, 0)
-						if ok_parser then
-							cache = treesitter_symbol()
-							return cache
-						end
+							local ok_parser = pcall(vim.treesitter.get_parser, bufnr)
+							if ok_parser then
+								return treesitter_symbol(bufnr)
+							end
 
-						cache = ""
-						return cache
+							return ""
+						end)
+
+						cache[winid] = {
+							bufnr = bufnr,
+							last_update = now,
+							value = value,
+						}
+						return value
 					end
 				end)(),
 			},

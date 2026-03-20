@@ -658,6 +658,7 @@ function M.setup(opts)
 
     local root = find_git_root(abspath)
     local target_dir = root or dir
+    -- 有意切换全局 cwd，让后续项目级命令直接落在当前文件所属项目根目录。
     vim.cmd("cd " .. fn.fnameescape(target_dir))
     vim.cmd.edit(fn.fnameescape(abspath))
   end
@@ -959,16 +960,21 @@ function M.setup(opts)
   end
 
   if O.auto_open_on_uienter then
-    api.nvim_create_autocmd("UIEnter", {
-      once = true,
-      callback = function()
-        if fn.argc() == 0 and api.nvim_buf_get_name(0) == "" then
-          render()
-        end
-      end,
-    })
+    local function maybe_render_on_startup()
+      if fn.argc() == 0 and api.nvim_buf_get_name(0) == "" then
+        render()
+      end
+    end
+
+    if #api.nvim_list_uis() > 0 then
+      vim.schedule(maybe_render_on_startup)
+    else
+      api.nvim_create_autocmd("UIEnter", {
+        once = true,
+        callback = maybe_render_on_startup,
+      })
+    end
   end
 end
 
 return M
-

@@ -6,6 +6,7 @@ return {
 		build = ":TSUpdate",
 		config = function()
 			local ts = require("nvim-treesitter")
+			local uv = vim.uv or vim.loop
 
 			local parsers = {
 				"bash",
@@ -28,17 +29,51 @@ return {
 				install_dir = vim.fn.stdpath("data") .. "/site",
 			})
 
-			-- 已安装时是 no-op；install 是异步的
-			pcall(ts.install, parsers)
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "VeryLazy",
+				once = true,
+				callback = function()
+					vim.schedule(function()
+						pcall(ts.install, parsers)
+					end)
+				end,
+			})
 
 			vim.treesitter.language.register("json", "jsonc")
 			vim.treesitter.language.register("markdown", "markdown.mdx")
+
+			local max_filesize = 1024 * 1024
+			local max_lines = 20000
+
+			local function should_start(bufnr)
+				if not vim.api.nvim_buf_is_valid(bufnr) then
+					return false
+				end
+
+				if vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].filetype == "" then
+					return false
+				end
+
+				if vim.api.nvim_buf_line_count(bufnr) > max_lines then
+					return false
+				end
+
+				local name = vim.api.nvim_buf_get_name(bufnr)
+				if name == "" then
+					return true
+				end
+
+				local stat = uv.fs_stat(name)
+				return not (stat and stat.size and stat.size > max_filesize)
+			end
 
 			local group = vim.api.nvim_create_augroup("nx_treesitter_start", { clear = true })
 			vim.api.nvim_create_autocmd("FileType", {
 				group = group,
 				callback = function(args)
-					pcall(vim.treesitter.start, args.buf)
+					if should_start(args.buf) then
+						pcall(vim.treesitter.start, args.buf)
+					end
 				end,
 			})
 		end,
