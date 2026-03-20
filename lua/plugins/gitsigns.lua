@@ -61,111 +61,61 @@ return {
 		on_attach = function(bufnr)
 			local gs = package.loaded.gitsigns or require("gitsigns")
 			-- 这些映射只有在当前 buffer 真正 attach 到 gitsigns 后才有意义。
+			local maps = {
+				{ mode = "n", lhs = "<leader>gj", rhs = gs.next_hunk, desc = "Next hunk" },
+				{ mode = "n", lhs = "<leader>gk", rhs = gs.prev_hunk, desc = "Previous hunk" },
+				{ mode = "n", lhs = "<leader>gs", rhs = gs.stage_hunk, desc = "Stage hunk" },
+				{
+					mode = "v",
+					lhs = "<leader>gs",
+					rhs = function()
+						gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+					end,
+					desc = "Stage selected hunk",
+				},
+				{ mode = "n", lhs = "<leader>gr", rhs = gs.reset_hunk, desc = "Reset hunk" },
+				{
+					mode = "v",
+					lhs = "<leader>gr",
+					rhs = function()
+						gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+					end,
+					desc = "Reset selected hunk",
+				},
+				{ mode = "n", lhs = "<leader>gS", rhs = gs.stage_buffer, desc = "Stage buffer" },
+				{ mode = "n", lhs = "<leader>gu", rhs = gs.undo_stage_hunk, desc = "Undo stage hunk" },
+				{ mode = "n", lhs = "<leader>gR", rhs = gs.reset_buffer, desc = "Reset buffer" },
+				{ mode = "n", lhs = "<leader>gp", rhs = gs.preview_hunk, desc = "Preview hunk" },
+				{
+					mode = "n",
+					lhs = "<leader>gl",
+					rhs = function()
+						gs.blame_line({ full = true })
+					end,
+					desc = "Blame line (full)",
+				},
+				{ mode = "n", lhs = "<leader>gB", rhs = gs.toggle_current_line_blame, desc = "Toggle current line blame" },
+				{ mode = "n", lhs = "<leader>g=", rhs = gs.diffthis, desc = "Diff against index" },
+				{
+					mode = "n",
+					lhs = "<leader>g-",
+					rhs = function()
+						gs.diffthis("~")
+					end,
+					desc = "Diff against last commit",
+				},
+				{ mode = "n", lhs = "<leader>gX", rhs = gs.toggle_deleted, desc = "Toggle deleted hunks" },
+				{ mode = { "o", "x" }, lhs = "ih", rhs = gs.select_hunk, desc = "Select hunk" },
+			}
 
-			vim.keymap.set("n", "<leader>gj", gs.next_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Next hunk",
-			})
-			vim.keymap.set("n", "<leader>gk", gs.prev_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Previous hunk",
-			})
-			vim.keymap.set("n", "<leader>gs", gs.stage_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Stage hunk",
-			})
-			vim.keymap.set("v", "<leader>gs", function()
-				gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
-			end, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Stage selected hunk",
-			})
-			vim.keymap.set("n", "<leader>gr", gs.reset_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Reset hunk",
-			})
-			vim.keymap.set("v", "<leader>gr", function()
-				gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-			end, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Reset selected hunk",
-			})
-			vim.keymap.set("n", "<leader>gS", gs.stage_buffer, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Stage buffer",
-			})
-			vim.keymap.set("n", "<leader>gu", gs.undo_stage_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Undo stage hunk",
-			})
-			vim.keymap.set("n", "<leader>gR", gs.reset_buffer, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Reset buffer",
-			})
-			vim.keymap.set("n", "<leader>gp", gs.preview_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Preview hunk",
-			})
-			vim.keymap.set("n", "<leader>gl", function()
-				gs.blame_line({ full = true })
-			end, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Blame line (full)",
-			})
-			vim.keymap.set("n", "<leader>gB", gs.toggle_current_line_blame, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Toggle current line blame",
-			})
-			vim.keymap.set("n", "<leader>g=", gs.diffthis, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Diff against index",
-			})
-			vim.keymap.set("n", "<leader>g-", function()
-				gs.diffthis("~")
-			end, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Diff against last commit",
-			})
-			vim.keymap.set("n", "<leader>gX", gs.toggle_deleted, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Toggle deleted hunks",
-			})
-			vim.keymap.set({ "o", "x" }, "ih", gs.select_hunk, {
-				buffer = bufnr,
-				silent = true,
-				noremap = true,
-				desc = "Select hunk",
-			})
+			for _, map in ipairs(maps) do
+				vim.keymap.set(map.mode, map.lhs, map.rhs, {
+					buffer = bufnr,
+					silent = true,
+					noremap = true,
+					desc = map.desc,
+				})
+			end
 		end,
 	},
 }

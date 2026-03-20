@@ -30,6 +30,7 @@ function M.setup(opts)
   local api = vim.api
   local fn = vim.fn
   local uv = vim.loop
+  local project_root = require("config.project_root")
 
   local O = vim.tbl_deep_extend("force", {}, defaults, opts or {})
 
@@ -122,13 +123,8 @@ function M.setup(opts)
   -----------------------------------------------------
   -- 工具函数
   -----------------------------------------------------
-  local function is_local_path(path)
-    return not path:match("^%w[%w+.-]*://")
-  end
-
-  local function is_on_windows_mount(path)
-    return path:match("^/mnt/[a-zA-Z]/")
-  end
+  local is_local_path = project_root.is_local_path
+  local is_on_windows_mount = project_root.is_on_windows_mount
 
   -----------------------------------------------------
   -- to_abs 缓存
@@ -274,75 +270,22 @@ function M.setup(opts)
   -----------------------------------------------------
   -- git root：目录缓存 + 文件缓存
   -----------------------------------------------------
-  local NO_GIT_ROOT = false
-  local git_root_cache = {}
-  local file_root_cache = {}
-
   local function find_git_root(path)
     stats.git_root_calls = stats.git_root_calls + 1
     local t0 = now_ms()
 
-    if not path or path == "" then
-      stats.git_root_ms_total = stats.git_root_ms_total + (now_ms() - t0)
-      return nil
-    end
-    if not is_local_path(path) or is_on_windows_mount(path) then
-      stats.git_root_ms_total = stats.git_root_ms_total + (now_ms() - t0)
-      return nil
-    end
+    local root = project_root.find_git_root(path, {
+      on_event = function(event)
+        if event == "file_hit" then
+          stats.git_root_file_hit = stats.git_root_file_hit + 1
+        elseif event == "dir_hit" then
+          stats.git_root_dir_hit = stats.git_root_dir_hit + 1
+        elseif event == "fs_check" then
+          stats.git_root_fs_checks = stats.git_root_fs_checks + 1
+        end
+      end,
+    })
 
-    local abspath = to_abs(path)
-    if abspath == "" then
-      stats.git_root_ms_total = stats.git_root_ms_total + (now_ms() - t0)
-      return nil
-    end
-
-    local cached_file = file_root_cache[abspath]
-    if cached_file ~= nil then
-      stats.git_root_file_hit = stats.git_root_file_hit + 1
-      stats.git_root_ms_total = stats.git_root_ms_total + (now_ms() - t0)
-      return cached_file or nil
-    end
-
-    local dir = (fn.isdirectory(abspath) == 1) and abspath or fn.fnamemodify(abspath, ":h")
-    if dir == "" then
-      file_root_cache[abspath] = false
-      stats.git_root_ms_total = stats.git_root_ms_total + (now_ms() - t0)
-      return nil
-    end
-
-    local visited = {}
-    local cur = dir
-    local root = nil
-
-    while cur and cur ~= "" do
-      local cached_dir = git_root_cache[cur]
-      if cached_dir ~= nil then
-        stats.git_root_dir_hit = stats.git_root_dir_hit + 1
-        root = cached_dir ~= NO_GIT_ROOT and cached_dir or nil
-        break
-      end
-
-      table.insert(visited, cur)
-      stats.git_root_fs_checks = stats.git_root_fs_checks + 1
-      if uv.fs_stat(cur .. "/.git") then
-        root = cur
-        break
-      end
-
-      local parent = fn.fnamemodify(cur, ":h")
-      if parent == cur then
-        break
-      end
-      cur = parent
-    end
-
-    local cache_value = root or NO_GIT_ROOT
-    for _, d in ipairs(visited) do
-      git_root_cache[d] = cache_value
-    end
-
-    file_root_cache[abspath] = root or false
     stats.git_root_ms_total = stats.git_root_ms_total + (now_ms() - t0)
     return root
   end
@@ -661,10 +604,8 @@ function M.setup(opts)
       return
     end
 
-    local root = find_git_root(abspath)
-    local target_dir = root or dir
     -- 有意切换全局 cwd，让后续项目级命令直接落在当前文件所属项目根目录。
-    vim.cmd("cd " .. fn.fnameescape(target_dir))
+    project_root.cd_to_path_context(abspath, { git_root_finder = find_git_root })
     vim.cmd.edit(fn.fnameescape(abspath))
   end
 

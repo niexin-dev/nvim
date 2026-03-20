@@ -24,54 +24,15 @@ return {
 
 	config = function()
 		vim.lsp.log.set_level("ERROR")
-
-		-- 与 blink.cmp 对外声明的补全能力保持一致，但不直接 require blink.cmp。
-		-- 这样 LSP 仍然知道客户端支持哪些 completion 特性，同时不破坏启动优化。
-		local capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), {
-			textDocument = {
-				completion = {
-					completionItem = {
-						snippetSupport = true,
-						commitCharactersSupport = false,
-						documentationFormat = { "markdown", "plaintext" },
-						deprecatedSupport = true,
-						preselectSupport = false,
-						tagSupport = { valueSet = { 1 } },
-						insertReplaceSupport = true,
-						resolveSupport = {
-							properties = {
-								"documentation",
-								"detail",
-								"additionalTextEdits",
-								"command",
-								"data",
-							},
-						},
-						insertTextModeSupport = {
-							valueSet = { 1 },
-						},
-						labelDetailsSupport = true,
-					},
-					completionList = {
-						itemDefaults = {
-							"commitCharacters",
-							"editRange",
-							"insertTextFormat",
-							"insertTextMode",
-							"data",
-						},
-					},
-					contextSupport = true,
-					insertTextMode = 1,
-				},
-			},
-		}, {
-			textDocument = {
-				semanticTokens = {
-					multilineTokenSupport = true,
-				},
-			},
-		})
+		local capabilities = require("config.lsp_capabilities").get()
+		local js_ts_inlay_hints = {
+			parameterNames = { enabled = "literals" },
+			parameterTypes = { enabled = true },
+			variableTypes = { enabled = true },
+			propertyDeclarationTypes = { enabled = true },
+			functionLikeReturnTypes = { enabled = true },
+			enumMemberValues = { enabled = true },
+		}
 
 		vim.lsp.config("*", {
 			capabilities = capabilities,
@@ -170,24 +131,10 @@ return {
 			root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
 			settings = {
 				typescript = {
-					inlayHints = {
-						parameterNames = { enabled = "literals" },
-						parameterTypes = { enabled = true },
-						variableTypes = { enabled = true },
-						propertyDeclarationTypes = { enabled = true },
-						functionLikeReturnTypes = { enabled = true },
-						enumMemberValues = { enabled = true },
-					},
+					inlayHints = vim.deepcopy(js_ts_inlay_hints),
 				},
 				javascript = {
-					inlayHints = {
-						parameterNames = { enabled = "literals" },
-						parameterTypes = { enabled = true },
-						variableTypes = { enabled = true },
-						propertyDeclarationTypes = { enabled = true },
-						functionLikeReturnTypes = { enabled = true },
-						enumMemberValues = { enabled = true },
-					},
+					inlayHints = vim.deepcopy(js_ts_inlay_hints),
 				},
 			},
 		}

@@ -58,6 +58,7 @@ return {
 
 		local fzf = require("fzf-lua")
 		local actions = fzf.actions
+		local project_root = require("config.project_root")
 
 		-- 给 oldfiles 配一个自定义的 <CR> 行为
 		opts.oldfiles = opts.oldfiles or {}
@@ -73,26 +74,8 @@ return {
 				return
 			end
 
-			-- 文件所在目录
-			local dir = vim.fn.fnamemodify(path, ":p:h")
-
-			-- 尝试查 git 根目录
-			local result = vim.fn.systemlist({
-				"git",
-				"-C",
-				dir,
-				"rev-parse",
-				"--show-toplevel",
-			})
-			local git_root = result[1]
-
-			if vim.v.shell_error == 0 and git_root and git_root ~= "" then
-				-- 有意切换全局 cwd，让后续 Git/搜索/终端都以项目根目录工作。
-				vim.cmd("cd " .. vim.fn.fnameescape(git_root))
-			else
-				-- 非 Git 文件则退回到文件所在目录，保持后续命令有稳定根目录。
-				vim.cmd("cd " .. vim.fn.fnameescape(dir))
-			end
+			-- 有意切换全局 cwd，让后续 Git/搜索/终端都以当前文件所在项目上下文工作。
+			project_root.cd_to_path_context(path)
 		end
 
 		-- 原来的 setup + ui_select

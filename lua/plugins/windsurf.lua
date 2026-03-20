@@ -47,7 +47,7 @@ return {
 					setup_codeium()
 				end, { desc = "Initialize Codeium (may download language server)" })
 			end
-			vim.notify(
+			vim.notify_once(
 				"[codeium] 未检测到本地 language server，已跳过自动初始化。需要时执行 :CodeiumBootstrap",
 				vim.log.levels.WARN
 			)

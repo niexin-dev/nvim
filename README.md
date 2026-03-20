@@ -39,8 +39,15 @@ nvim
 
 - `init.lua`：入口文件，依次加载选项、按键、插件。
 - `lua/config/`：
-  - `options.lua`：行号、光标行、分屏、剪贴板、持久化 undo、编码等通用设置。
-  - `keymaps.lua`：统一设置 `<leader>`（默认为 `,`）、常用操作、可视模式缩进等。
+  - `options.lua`：基础 option，如行号、分屏、搜索、持久化 undo、补全菜单等。
+  - `clipboard.lua`：WSL / SSH 等环境下的剪贴板桥接逻辑。
+  - `filetypes.lua`：扩展名识别、C 头文件语法、按语言缩进规则。
+  - `autocmds.lua`：恢复上次光标位置等通用自动命令。
+  - `diagnostics.lua`：全局诊断展示策略。
+  - `lsp_capabilities.lua`：LSP 客户端能力声明，供 `nvim-lspconfig` 复用。
+  - `project_root.lua`：项目根目录与 cwd 切换辅助函数，供 dashboard / FzfLua 共享。
+  - `codecompanion/`：CodeCompanion 的 adapters、prompt 模板和快捷键拆分模块。
+  - `keymaps.lua`：统一设置 `<leader>`（默认为 `,`）和全局基础快捷键。
   - `lazy.lua`：lazy.nvim 引导与全局配置。
 - `lua/plugins/`：按 Lazy 规范拆分的插件配置文件，可按需增删。
 - `KEYMAPS.md`：单独维护的快捷键设计与分组说明。
