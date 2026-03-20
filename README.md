@@ -68,10 +68,16 @@ nvim
 - `SchemaStore` 只在 `jsonls` 真正需要 schema 时按需加载，不再进入普通文件的打开热路径。
 - `gitsigns` 延后到 `VeryLazy`，更贴合 dashboard-first 的使用方式；`treesitter` 也额外做了大文件和特殊 buffer 的保护。
 
+### GitHub 路由策略
+
+- 配置内发起的 GitHub 相关操作现在统一复用 `lua/config/github.lua`。
+- 默认模式是 `proxy`，会把 `lazy.nvim` 的插件拉取、`lazy.nvim` 自身 bootstrap、`mason.nvim` 的 GitHub release 下载统一走代理基址 `https://ghfast.top/https://github.com/`。
+- 如需改回直连，可设置 `GITHUB_PROXY_MODE=direct`；如需“能直连就直连，失败再走代理”，可设置 `GITHUB_PROXY_MODE=auto`。
+- 如需替换代理服务，可设置 `GITHUB_PROXY_BASE`。
+
 ### 工具链与格式化
 
 - `Conform` 统一承接格式化，不把格式化逻辑分散到多个 LSP 或插件里。
-- `MasonSmart` / `MasonInstallSmart` / `MasonUpdateSmart` 会在执行命令时检测 GitHub 可达性，再决定是否切换镜像。
 - C/C++ 额外做了 `compile_commands.json` 目录探测和 `clang-format` 样式固定，减少每个项目单独适配的成本。
 
 ## 常用快捷键
@@ -153,7 +159,7 @@ nvim
 ## 日常操作建议
 
 - 插件管理：执行 `Lazy`、`:Lazy sync`、`:Lazy check` 查看或更新插件。
-- 语言工具：执行 `Mason`、`:MasonToolsInstall`、`:MasonToolsUpdate` 管理语言服务器与格式化器；网络受限时可使用 `:MasonSmart` / `:MasonInstallSmart` / `:MasonUpdateSmart` 自动切换镜像。
+- 语言工具：执行 `Mason`、`:MasonToolsInstall`、`:MasonToolsUpdate` 管理语言服务器与格式化器；`mason.nvim` 会自动复用当前的 GitHub 路由策略。
 - 格式化：使用 `<leader>fm`；Conform 会优先调用外部工具，必要时回退到 LSP。
 - 自检：执行 `./scripts/check.sh`，会统一检查 Lua 语法并验证 `nvim --headless` 能否正常启动。
 - 搜索 / 跳转：优先使用 `FzfLua` 与 `leap.nvim`，可显著提升效率。
