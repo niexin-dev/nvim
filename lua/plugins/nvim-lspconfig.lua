@@ -1,3 +1,8 @@
+-- LSP 主入口。
+-- 1. 只在真正进入文件缓冲区时加载，避免空启动时提前拉起整条语言服务链。
+-- 2. 这里手写了一份 blink.cmp 的 completion capability 镜像，目的不是“复制配置”，
+--    而是避免普通文件打开时为了拿 capability 就把 blink.cmp 整体提前加载。
+-- 3. JSON Schema 通过 schemastore 按需获取，避免把 SchemaStore 放进常规 BufRead 热路径。
 return {
 	"neovim/nvim-lspconfig",
 	-- 仅在读取 / 创建文件缓冲区时加载，避免在启动时抢占资源
@@ -20,8 +25,8 @@ return {
 	config = function()
 		vim.lsp.log.set_level("ERROR")
 
-		-- Mirrors blink.cmp's advertised completion capabilities without forcing
-		-- the full completion plugin to load during ordinary file opens.
+		-- 与 blink.cmp 对外声明的补全能力保持一致，但不直接 require blink.cmp。
+		-- 这样 LSP 仍然知道客户端支持哪些 completion 特性，同时不破坏启动优化。
 		local capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), {
 			textDocument = {
 				completion = {
@@ -74,6 +79,7 @@ return {
 
 		local stylua_cfg = vim.lsp.config["stylua"]
 		if stylua_cfg then
+			-- stylua 在这里只保留 formatter 能力，不把它作为常驻 LSP 自动启动。
 			stylua_cfg.autostart = false
 			stylua_cfg.cmd = nil
 		end
@@ -82,6 +88,7 @@ return {
 		local json_schemas
 
 		local function get_json_schemas()
+			-- schemastore 只在 jsonls 真正初始化配置时才读取一次，后续走缓存。
 			if json_schemas ~= nil then
 				return json_schemas or nil
 			end
@@ -123,6 +130,7 @@ return {
 				".git",
 			},
 			on_new_config = function(new_config, root_dir)
+				-- 优先探测常见的构建目录，让 clangd 能直接吃到生成出的 compile_commands。
 				local candidate_dirs = {
 					root_dir,
 					vim.fs.joinpath(root_dir, "build"),
@@ -297,12 +305,14 @@ return {
 				local bufnr = event.buf
 
 				if client.name == "stylua" then
+					-- 防御式兜底：即使 stylua 被外部路径拉起，也立即停掉，避免和预期不一致。
 					client:stop()
 					return
 				end
 
 				local ok_navic, navic = pcall(require, "nvim-navic")
 				if ok_navic and client.server_capabilities.documentSymbolProvider then
+					-- navic 依赖 documentSymbol，缺这个能力时不强绑，避免无意义 attach。
 					navic.attach(client, bufnr)
 				end
 

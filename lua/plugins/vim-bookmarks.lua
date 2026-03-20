@@ -1,3 +1,6 @@
+-- 轻量书签。
+-- 1. 纯命令触发，避免为了偶尔用到的书签功能进入普通文件打开热路径。
+-- 2. 这里的高亮和标记样式是为了让书签在长文件里足够醒目。
 return {
 	"MattesGroeger/vim-bookmarks",
 	name = "bookmarks",

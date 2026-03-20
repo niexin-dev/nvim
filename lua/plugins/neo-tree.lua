@@ -1,3 +1,6 @@
+-- 侧边文件树。
+-- 1. 主要承担文件浏览、git 状态查看和目录切换，不和 dashboard 的“启动入口”职责混在一起。
+-- 2. 跟随当前文件开启，这样在项目里切换 buffer 时树会自动对齐上下文。
 return {
 	"nvim-neo-tree/neo-tree.nvim",
 	branch = "v3.x",
@@ -25,6 +28,7 @@ return {
 				event = "neo_tree_popup_input_ready",
 				---@param args { bufnr: integer, winid: integer }
 				handler = function(args)
+					-- 新建/重命名输入框默认退出插入，和整体键位习惯保持一致。
 					vim.cmd("stopinsert")
 					vim.keymap.set("i", "<esc>", vim.cmd.stopinsert, { noremap = true, buffer = args.bufnr })
 				end,
@@ -168,6 +172,7 @@ return {
 			},
 			follow_current_file = {
 				enabled = true,
+				-- 切 buffer 时允许折叠无关目录，避免大项目树被不断撑开。
 				leave_dirs_open = false,
 			},
 			group_empty_dirs = false,

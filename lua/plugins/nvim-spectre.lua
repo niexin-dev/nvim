@@ -1,3 +1,6 @@
+-- 项目级搜索替换。
+-- 1. Spectre 很依赖当前 cwd，所以它和 dashboard / fzf-lua 的项目根切换是配套设计。
+-- 2. 这里只保留最常用的三个入口：全局、当前词、当前文件。
 return {
 	"nvim-pack/nvim-spectre",
 	dependencies = { "nvim-lua/plenary.nvim" },

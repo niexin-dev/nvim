@@ -1,3 +1,7 @@
+-- Treesitter 基础设施。
+-- 1. 这是语法高亮、文本对象、上下文窗口等能力的底座，所以核心插件常驻加载。
+-- 2. parser 安装被延后到 VeryLazy 之后，避免空启动时就做安装检查。
+-- 3. 真正启动 parser 前还会过一层大文件 / 特殊 buffer 保护，防止重文件拖慢体验。
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
@@ -34,6 +38,7 @@ return {
 				once = true,
 				callback = function()
 					vim.schedule(function()
+						-- 缺 parser 时尽量自动补齐，但不把这件事放到首屏热路径里。
 						pcall(ts.install, parsers)
 					end)
 				end,
@@ -72,6 +77,7 @@ return {
 				group = group,
 				callback = function(args)
 					if should_start(args.buf) then
+						-- start 失败时静默兜底，避免单个 parser 异常打断编辑流。
 						pcall(vim.treesitter.start, args.buf)
 					end
 				end,
@@ -85,6 +91,7 @@ return {
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 		event = { "BufReadPost", "BufNewFile" },
 		config = function()
+			-- 文本对象相关映射集中放这里，便于按“选择 / 跳转 / 交换”三个维度理解。
 			require("nvim-treesitter-textobjects").setup({
 				select = {
 					lookahead = true,
@@ -161,6 +168,7 @@ return {
 
 	{
 		"nvim-treesitter/nvim-treesitter-context",
+		-- 这是附加 UI，不需要参与最早的启动阶段。
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 		event = "BufReadPost",
 		opts = {

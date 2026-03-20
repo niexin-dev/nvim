@@ -1,4 +1,8 @@
--- local_plugins/nx-dashboard/lua/nx_dashboard/init.lua
+-- 本地启动面板。
+-- 1. 目标不是“炫酷欢迎页”，而是把最近文件按项目根聚合，缩短进入工作上下文的路径。
+-- 2. 这里会主动维护项目根、oldfiles 缓存和预热逻辑，所以文件较长，但核心关注点只有三个：
+--    渲染、分组、打开文件后的 cwd 切换。
+-- 3. 你的工作流是“先开 nvim，再从 dashboard 进项目”，因此这里保留了全局 cwd 切换设计。
 local M = {}
 
 local defaults = {
@@ -109,6 +113,7 @@ function M.setup(opts)
   -----------------------------------------------------
   local expanded_root = nil
   local pending_cursor = nil
+  -- 记录 Neovim 启动时的 cwd，后面构造 OTHER 分组和回退逻辑时会用到。
   local startup_cwd = fn.getcwd()
 
   local dashboard_buf = nil
@@ -742,6 +747,7 @@ function M.setup(opts)
 
         expanded_root = g.key
         if g.key ~= "OTHER" then
+          -- 数字键展开项目时，同步切全局 cwd，确保后续搜索 / Git / 终端都落在同一项目根。
           vim.cmd("cd " .. fn.fnameescape(g.key))
         end
         vim.cmd(O.cmd_open)
@@ -967,6 +973,7 @@ function M.setup(opts)
     end
 
     if #api.nvim_list_uis() > 0 then
+      -- 插件本身现在也是 UIEnter 懒加载，这里要兼容“加载时 UI 已经存在”的场景。
       vim.schedule(maybe_render_on_startup)
     else
       api.nvim_create_autocmd("UIEnter", {

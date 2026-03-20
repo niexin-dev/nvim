@@ -1,48 +1,45 @@
--- 返回一个Lua表，描述插件配置（符合lazy.nvim规范）
+-- AI 工作流入口。
+-- 1. 主要用 codex 作为默认适配器，其他厂商模型保留为补充出口。
+-- 2. prompt_library 存的是高频中文模板，目的是把“重复描述规则”固化下来。
+-- 3. commit message 模板直接读取 staged diff，因此依赖当前 cwd 已经落在正确仓库。
 return {
-	-- 插件GitHub仓库地址
 	"olimorris/codecompanion.nvim",
-	-- 自动加载默认配置
 	cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionActions", "CodeCompanionAsk" },
 	config = true,
-	-- 声明依赖的其他插件
 	dependencies = {
-		"nvim-lua/plenary.nvim", -- 提供Lua工具函数
-		"nvim-treesitter/nvim-treesitter", -- 语法分析
-		"ravitemer/codecompanion-history.nvim", -- 历史记录
+		"nvim-lua/plenary.nvim", -- 提供底层工具函数
+		"nvim-treesitter/nvim-treesitter", -- 供上下文提取和代码理解使用
+		"ravitemer/codecompanion-history.nvim", -- 保留聊天历史
 	},
 
 	version = "*",
-	-- 自定义配置选项
 	opts = {
-		-- 全局选项
 		opts = {
-			language = "Chinese", -- 设置默认语言为中文
+			language = "Chinese",
 			-- log_level = "TRACE",  -- TRACE|DEBUG|ERROR|INFO
 		},
-		-- 定义不同策略使用的适配器
 		strategies = {
-			chat = { -- 聊天模式
+			-- 三种交互都统一走 codex，减少“聊天和编辑不是同一个模型”的上下文割裂。
+			chat = {
 				adapter = "codex",
 			},
-			inline = { -- 行内编辑模式
+			inline = {
 				adapter = "codex",
 			},
-			cmd = { -- 命令行模式
+			cmd = {
 				adapter = "codex",
 			},
 		},
-		-- 适配器具体配置
 		adapters = {
 			http = {
-				deepseek = function() -- deepseek适配器定义
+				deepseek = function()
 					return require("codecompanion.adapters").extend("deepseek", {
 						env = {
-							api_key = "cmd:echo $DEEPSEEK_API_KEY", -- 从环境变量读取
+							api_key = "cmd:echo $DEEPSEEK_API_KEY",
 						},
 						schema = {
 							model = {
-								default = "deepseek-chat", -- 默认模型
+								default = "deepseek-chat",
 							},
 						},
 					})
@@ -50,11 +47,11 @@ return {
 				gemini = function()
 					return require("codecompanion.adapters").extend("gemini", {
 						env = {
-							api_key = "cmd:echo $GEMINI_API_KEY", -- 从环境变量读取
+							api_key = "cmd:echo $GEMINI_API_KEY",
 						},
 						schema = {
 							model = {
-								default = "gemini-2.5-flash", -- 更新的模型
+								default = "gemini-2.5-flash",
 							},
 						},
 					})
@@ -62,11 +59,11 @@ return {
 				openai = function()
 					return require("codecompanion.adapters").extend("openai", {
 						env = {
-							api_key = "cmd:echo $OPENAI_API_KEY", -- 从环境变量读取
+							api_key = "cmd:echo $OPENAI_API_KEY",
 						},
 						schema = {
 							model = {
-								default = "gpt-4o", -- 默认模型
+								default = "gpt-4o",
 							},
 						},
 					})
@@ -78,7 +75,7 @@ return {
 						},
 						schema = {
 							model = {
-								default = "qwen3-coder:30b", -- 默认模型
+								default = "qwen3-coder:30b",
 							},
 							num_ctx = {
 								default = 32768,
@@ -99,6 +96,7 @@ return {
 							default = command,
 						},
 						defaults = {
+							-- 这里固定走 ChatGPT 登录态，避免把 API key 管理混进日常编辑流。
 							auth_method = "chatgpt", -- "openai-api-key"|"codex-api-key"|"chatgpt"
 							model = "gpt-5.4-mini",
 							mode = "medium",
@@ -115,7 +113,7 @@ return {
 				end,
 			},
 		},
-		-- 预定义提示库
+		-- 预定义提示库。这里优先沉淀“经常要说、但每次都不想重说”的约束。
 		prompt_library = {
 			-- 代码解释
 			["Explain Code"] = {
@@ -205,22 +203,21 @@ return {
 					},
 				},
 			},
-			-- 名为"Generate a Commit Message"的提示
+			-- 这个模板直接读取 staged diff，适合在 git add 之后快速生成中文草稿。
 			["Generate a Commit Message"] = {
-				interaction = "chat", -- 使用聊天策略
-				description = "Generate a commit message", -- 描述
+				interaction = "chat",
+				description = "Generate a commit message",
 				opts = {
-					index = 10, -- 排序位置
-					is_default = true, -- 设为默认提示
-					is_slash_cmd = true, -- 支持斜杠命令
-					alias = "commit_cn", -- 快捷名称
-					auto_submit = true, -- 自动提交
+					index = 10,
+					is_default = true,
+					is_slash_cmd = true,
+					alias = "commit_cn",
+					auto_submit = true,
 				},
-				-- 提示内容定义
 				prompts = {
 					{
-						role = "user", -- 用户角色
-						content = function() -- 动态生成内容
+						role = "user",
+						content = function()
 							local staged_diff = vim.fn.system("git diff --no-ext-diff --staged")
 							if vim.v.shell_error ~= 0 then
 								return "无法读取暂存区 diff，请先确认当前目录是 git 仓库，并且存在可读取的暂存改动。"
@@ -333,7 +330,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 							)
 						end,
 						opts = {
-							contains_code = true, -- 标记包含代码
+							contains_code = true,
 						},
 					},
 				},
@@ -377,17 +374,16 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 			},
 		},
 	},
-	-- 快捷键绑定
 	keys = {
 		{
-			"<leader>am", -- 快捷键组合
-			function() -- 执行函数
-				require("codecompanion").prompt("commit_cn") -- 触发commit提示
+			"<leader>am",
+			function()
+				require("codecompanion").prompt("commit_cn")
 			end,
-			desc = "Generate commit message", -- 描述
-			mode = "n", -- 普通模式生效
-			noremap = true, -- 非递归映射
-			silent = true, -- 静默执行
+			desc = "Generate commit message",
+			mode = "n",
+			noremap = true,
+			silent = true,
 		},
 		{ "<leader>ai", "<cmd>CodeCompanionChat<cr>", desc = "AI Chat" },
 		{ "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions" },

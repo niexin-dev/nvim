@@ -1,3 +1,6 @@
+-- lazy.nvim 启动入口。
+-- 1. 先启用 vim.loader，再 bootstrap lazy.nvim，本质上是整套插件系统的装载器。
+-- 2. 这里只负责“把插件规格读进来”，具体行为都在 lua/plugins/*.lua 里定义。
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 

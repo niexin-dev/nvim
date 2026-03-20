@@ -1,3 +1,6 @@
+-- 本地终端管理器。
+-- 1. 走 lazy keys 保证首次按键就能执行，所以插件内部映射要关闭，避免重复绑定。
+-- 2. 终端新建、切换、放大和退出动作都集中在这里，减少散落映射。
 return {
 	name = "nx-terminal",
 	dir = vim.fn.stdpath("config") .. "/lua/nx/nx-terminal",

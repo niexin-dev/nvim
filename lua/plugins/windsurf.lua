@@ -1,3 +1,6 @@
+-- Codeium / Windsurf 补全入口。
+-- 1. 只有检测到本地 language server 已经存在时才自动启用，避免首次启动时偷偷下载。
+-- 2. 只开补全，不开聊天，也不接 nvim-cmp source，减少和 blink/codex 的职责重叠。
 return {
 	"Exafunction/windsurf.nvim",
 	dependencies = {
@@ -6,6 +9,7 @@ return {
 	event = "VeryLazy",
 	config = function()
 		local function has_local_language_server()
+			-- 先借 codeium 自己的配置/更新模块判断本地二进制是否就绪。
 			local ok_cfg, cfg = pcall(require, "codeium.config")
 			if not ok_cfg then
 				return false

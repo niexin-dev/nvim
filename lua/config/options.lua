@@ -1,3 +1,6 @@
+-- 基础编辑器行为配置。
+-- 1. 这里不只放 option，也混合了恢复光标、剪贴板、filetype 和缩进规则。
+-- 2. 如果以后想继续整理结构，可以按 options / autocmds / clipboard / filetypes 再拆分。
 -- 行号
 -- vim.opt.relativenumber = true
 vim.opt.number = true
@@ -120,6 +123,7 @@ local function setup_clipboard()
 
 	-- SSH 环境下使用 OSC52 协议支持远程复制粘贴
 	if vim.env.SSH_TTY ~= nil then
+		-- 远程会话里优先保证“能复制出去”，哪怕粘贴能力只能走寄存器回退。
 		-- print("Setting up OSC52 clipboard") -- 调试信息
 		local function osc52_paste()
 			local content = vim.fn.getreg("")
@@ -191,6 +195,7 @@ vim.api.nvim_create_autocmd("FileType", {
 		"markdown.mdx",
 	},
 	callback = function()
+		-- 前端 / 标记类文件统一用 2 空格，避免跟 C/Lua/Python 的 4 空格习惯混在一起。
 		vim.opt_local.tabstop = 2
 		vim.opt_local.shiftwidth = 2
 		vim.opt_local.softtabstop = 2

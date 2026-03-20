@@ -1,3 +1,6 @@
+-- C/C++ 代码检索入口。
+-- 1. 只有在 C/C++ 文件里才有意义，因此按 filetype 懒加载。
+-- 2. 有 UI 时优先接 fzf-lua，没有 UI 或 picker 不可用时退回 quickfix，兼顾交互和稳妥。
 return {
 	"dhananjaylatkar/cscope_maps.nvim",
 	ft = { "c", "cpp" },

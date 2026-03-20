@@ -1,3 +1,7 @@
+-- 主补全引擎。
+-- 1. 入口放在 InsertEnter，避免普通文件打开时就把补全 UI 和 fuzzy 引擎提前拉起。
+-- 2. LSP capability 由 nvim-lspconfig 侧手写镜像，所以这里可以继续保持真正的输入时加载。
+-- 3. codeium 只是一个 provider，不是整套补全体系的主导者。
 local function notify_build_result(code, stderr)
 	if code == 0 then
 		vim.notify("blink.cmp: cargo build succeeded", vim.log.levels.INFO)
@@ -7,6 +11,7 @@ local function notify_build_result(code, stderr)
 end
 
 local function build_from_source(plugin)
+	-- 这里固定走源码编译，适合当前环境；如果以后切发行版二进制，再回到官方 build 策略即可。
 	if vim.fn.executable("cargo") ~= 1 then
 		vim.notify("blink.cmp: cargo executable not found, skipped source build", vim.log.levels.WARN)
 		return
@@ -88,7 +93,7 @@ return {
 					module = "codeium.blink",
 					score_offset = 100,
 					async = true,
-					-- ⬇⬇⬇ 新增：在无名 buffer / 特殊 buftype 里禁用 codeium
+					-- 只在正常文件 buffer 里启用 codeium，减少 help / prompt / 无名 buffer 误触发。
 					enabled = function(ctx)
 						local ok_codeium, codeium = pcall(require, "codeium")
 						if not ok_codeium or type(codeium) ~= "table" or type(codeium.s) ~= "table" then

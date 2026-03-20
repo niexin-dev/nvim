@@ -1,3 +1,6 @@
+-- 统一格式化入口。
+-- 1. 显式按文件类型挑 formatter，避免把“能不能格式化”分散在多个插件里。
+-- 2. format_on_save 只对少数语言开启，保留可控性，避免所有文件都在写入时被改动。
 return {
 	"stevearc/conform.nvim",
 	event = { "BufWritePre" },
@@ -55,6 +58,7 @@ return {
 			lsp_format = "fallback",
 		},
 		format_on_save = function(bufnr)
+			-- 这里只给“通常希望无脑保存即格式化”的语言开白名单。
 			local ft = vim.bo[bufnr].filetype
 			local enabled = {
 				javascript = true,
@@ -76,6 +80,7 @@ return {
 			},
 			clang_format = {
 				command = "clang-format",
+				-- 固定读取配置目录里的自定义样式文件，避免依赖各项目自己带 .clang-format。
 				prepend_args = { "--style=file:" .. vim.fs.joinpath(vim.fn.stdpath("config"), "nx-clang-format") },
 				range_args = function(self, ctx)
 					return { "--lines", string.format("%d:%d", ctx.range.start[1], ctx.range["end"][1]) }

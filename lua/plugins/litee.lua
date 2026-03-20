@@ -1,3 +1,6 @@
+-- LSP 调用树面板。
+-- 1. litee.nvim 提供承载面板，litee-calltree 只负责 incoming/outgoing calls。
+-- 2. 这里默认 popout，避免长期占据主编辑区域。
 return {
 	{
 		"niexin-dev/litee.nvim",

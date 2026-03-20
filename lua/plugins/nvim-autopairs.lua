@@ -1,3 +1,6 @@
+-- 自动补全括号/引号。
+-- 1. 只在 InsertEnter 后介入，减少普通模式下的无关初始化。
+-- 2. 借 treesitter 判断上下文，尽量避免在字符串或注释里错误补对。
 return {
 	"windwp/nvim-autopairs",
 	event = "InsertEnter",

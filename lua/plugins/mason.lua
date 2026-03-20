@@ -1,3 +1,6 @@
+-- 开发工具和语言服务器安装入口。
+-- 1. Mason 本身只在命令层加载，避免每次启动都做网络检测或 registry 操作。
+-- 2. 自定义了 Smart 命令：只有用户主动打开 / 安装 / 更新时，才探测 GitHub 是否可达并切换镜像。
 local tools = {
 	"clang-format", -- C/C++ 格式化工具
 	"mbake", -- Makefile format linter
@@ -150,7 +153,7 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		-- 与 nvim-lspconfig 共用同一组延迟事件，声明依赖只会确保加载顺序，不会提前触发任一插件
-		-- 修复lsp.log中的警告“clangd does not have a configuration”
+		-- 这里额外依赖 nvim-lspconfig，是为了确保 server 配置已先注册，避免日志警告。
 		dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
 		event = { "BufReadPre", "BufNewFile" },
 		opts = {

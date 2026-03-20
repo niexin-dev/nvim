@@ -1,7 +1,11 @@
+-- 统一检索入口。
+-- 1. 文件、grep、buffer、LSP 跳转基本都走这里，减少在多个 picker 之间切换。
+-- 2. oldfiles 的自定义 <CR> 会故意更新全局 cwd，和 dashboard-first 工作流保持一致。
 return {
 	"ibhagwan/fzf-lua",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	enabled = function()
+		-- headless 场景没有必要加载交互式 picker。
 		return #vim.api.nvim_list_uis() > 0
 	end,
 

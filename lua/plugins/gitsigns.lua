@@ -1,7 +1,10 @@
+-- Git 侧边标记与 hunk 操作入口。
+-- 1. 结合 dashboard-first 工作流延后到 VeryLazy，再由 gitsigns 自己回头 attach buffer。
+-- 2. 默认保留常用的 sign/numhl，关闭更吵的 linehl、word_diff、blame，减少视觉和更新开销。
+-- 3. 绝大多数键位都放在 on_attach 里，只对真正处于 Git 仓库的 buffer 生效。
 return {
 	"lewis6991/gitsigns.nvim",
-	-- Dashboard-first workflow: defer setup until the UI is settled, then let
-	-- gitsigns attach to already-open buffers by itself.
+	-- 配合 dashboard 首屏，先让 UI 稳定下来，再初始化 Git 状态。
 	event = "VeryLazy",
 	cmd = { "Gitsigns" },
 
@@ -57,6 +60,7 @@ return {
 		},
 		on_attach = function(bufnr)
 			local gs = package.loaded.gitsigns or require("gitsigns")
+			-- 这些映射只有在当前 buffer 真正 attach 到 gitsigns 后才有意义。
 
 			vim.keymap.set("n", "<leader>gj", gs.next_hunk, {
 				buffer = bufnr,

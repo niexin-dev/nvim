@@ -1,3 +1,7 @@
+-- 状态栏配置。
+-- 1. 走 VeryLazy，避免空启动时和 dashboard 抢首屏时间。
+-- 2. lualine_c 里有一段自定义当前位置逻辑，优先 navic，其次 treesitter。
+-- 3. 这里必须按窗口缓存，不能按全局缓存，否则多窗口下会出现符号串位。
 return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -61,6 +65,7 @@ return {
 					end
 
 					return function()
+						-- statusline 渲染时要取“正在被绘制的窗口”，而不是简单取当前窗口。
 						local winid = tonumber(vim.g.statusline_winid) or vim.api.nvim_get_current_win()
 						if not vim.api.nvim_win_is_valid(winid) then
 							return ""
@@ -87,6 +92,7 @@ return {
 								end
 							end
 
+							-- navic 不可用时退回到 treesitter，至少给出当前函数名。
 							local ok_parser = pcall(vim.treesitter.get_parser, bufnr)
 							if ok_parser then
 								return treesitter_symbol(bufnr)
