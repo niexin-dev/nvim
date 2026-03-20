@@ -2,12 +2,13 @@ return {
 	"folke/tokyonight.nvim",
 	lazy = false,
 	priority = 1000,
-	config = function()
-		-- 设置主题
-		-- colorscheme tokyonight-night
-		-- colorscheme tokyonight-storm
-		-- colorscheme tokyonight-day
-		-- colorscheme tokyonight-moon
-		vim.cmd([[colorscheme tokyonight-night]])
+	opts = {
+		style = "night",
+		cache = true,
+	},
+	config = function(_, opts)
+		local tokyonight = require("tokyonight")
+		tokyonight.setup(opts)
+		tokyonight.load({ style = opts.style })
 	end,
 }
