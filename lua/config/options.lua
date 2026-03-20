@@ -4,6 +4,8 @@
 -- 行号
 -- vim.opt.relativenumber = true
 vim.opt.number = true
+-- 关闭 Neovim 默认 intro 画面，避免空启动时先闪一下原生欢迎页再切到 dashboard。
+vim.opt.shortmess:append("I")
 
 -- 字体
 vim.opt.guifont = "Hack Nerd Font Mono Regular 12"
