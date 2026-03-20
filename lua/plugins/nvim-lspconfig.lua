@@ -1,9 +1,5 @@
 return {
 	"neovim/nvim-lspconfig",
-	dependencies = {
-		"b0o/SchemaStore.nvim",
-	},
-
 	-- 仅在读取 / 创建文件缓冲区时加载，避免在启动时抢占资源
 	event = { "BufReadPre", "BufNewFile" },
 
@@ -24,13 +20,47 @@ return {
 	config = function()
 		vim.lsp.log.set_level("ERROR")
 
-		local blink_capabilities = {}
-		local ok_blink, blink_cmp = pcall(require, "blink.cmp")
-		if ok_blink and blink_cmp.get_lsp_capabilities then
-			blink_capabilities = blink_cmp.get_lsp_capabilities()
-		end
-
-		local capabilities = vim.tbl_deep_extend("force", blink_capabilities, {
+		-- Mirrors blink.cmp's advertised completion capabilities without forcing
+		-- the full completion plugin to load during ordinary file opens.
+		local capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), {
+			textDocument = {
+				completion = {
+					completionItem = {
+						snippetSupport = true,
+						commitCharactersSupport = false,
+						documentationFormat = { "markdown", "plaintext" },
+						deprecatedSupport = true,
+						preselectSupport = false,
+						tagSupport = { valueSet = { 1 } },
+						insertReplaceSupport = true,
+						resolveSupport = {
+							properties = {
+								"documentation",
+								"detail",
+								"additionalTextEdits",
+								"command",
+								"data",
+							},
+						},
+						insertTextModeSupport = {
+							valueSet = { 1 },
+						},
+						labelDetailsSupport = true,
+					},
+					completionList = {
+						itemDefaults = {
+							"commitCharacters",
+							"editRange",
+							"insertTextFormat",
+							"insertTextMode",
+							"data",
+						},
+					},
+					contextSupport = true,
+					insertTextMode = 1,
+				},
+			},
+		}, {
 			textDocument = {
 				semanticTokens = {
 					multilineTokenSupport = true,
@@ -49,7 +79,28 @@ return {
 		end
 
 		local uv = vim.uv or vim.loop
-		local ok_schemastore, schemastore = pcall(require, "schemastore")
+		local json_schemas
+
+		local function get_json_schemas()
+			if json_schemas ~= nil then
+				return json_schemas or nil
+			end
+
+			local ok_schemastore, schemastore = pcall(require, "schemastore")
+			if not ok_schemastore then
+				json_schemas = false
+				return nil
+			end
+
+			local ok_schemas, schemas = pcall(schemastore.json.schemas)
+			if not ok_schemas then
+				json_schemas = false
+				return nil
+			end
+
+			json_schemas = schemas
+			return json_schemas
+		end
 
 		vim.lsp.config["clangd"] = {
 			cmd = {
@@ -169,11 +220,15 @@ return {
 		}
 
 		vim.lsp.config["jsonls"] = {
+			on_new_config = function(new_config)
+				new_config.settings = new_config.settings or {}
+				new_config.settings.json = new_config.settings.json or {}
+				new_config.settings.json.schemas = get_json_schemas()
+			end,
 			settings = {
 				json = {
 					validate = { enable = true },
 					format = { enable = false },
-					schemas = ok_schemastore and schemastore.json.schemas() or nil,
 				},
 			},
 		}
