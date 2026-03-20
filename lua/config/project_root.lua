@@ -91,6 +91,15 @@ function M.find_git_root(path, opts)
 	return root
 end
 
+function M.remember_file_root(path, root)
+	local abspath = M.to_abs(path)
+	if abspath == "" then
+		return
+	end
+
+	file_root_cache[abspath] = root or NO_GIT_ROOT
+end
+
 function M.resolve_context_dir(path, opts)
 	if not path or path == "" then
 		return nil
