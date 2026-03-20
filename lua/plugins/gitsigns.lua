@@ -1,6 +1,9 @@
 return {
 	"lewis6991/gitsigns.nvim",
-	event = { "BufReadPre", "BufNewFile" },
+	-- Dashboard-first workflow: defer setup until the UI is settled, then let
+	-- gitsigns attach to already-open buffers by itself.
+	event = "VeryLazy",
+	cmd = { "Gitsigns" },
 
 	opts = {
 		signs = {
@@ -19,7 +22,7 @@ return {
 			changedelete = { text = "~" },
 			untracked = { text = "┆" },
 		},
-		signs_staged_enable = true,
+		signs_staged_enable = false,
 		signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
 		numhl = true, -- Toggle with `:Gitsigns toggle_numhl`
 		linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
@@ -29,7 +32,7 @@ return {
 			follow_files = true,
 		},
 		auto_attach = true,
-		attach_to_untracked = true,
+		attach_to_untracked = false,
 		current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
 		current_line_blame_opts = {
 			virt_text = true,
@@ -43,7 +46,7 @@ return {
 		sign_priority = 6,
 		update_debounce = 100,
 		status_formatter = nil, -- Use default
-		max_file_length = 40000, -- Disable if file is longer than this (in lines)
+		max_file_length = 20000, -- Disable if file is longer than this (in lines)
 		preview_config = {
 			-- Options passed to nvim_open_win
 			border = "single",
