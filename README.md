@@ -155,6 +155,7 @@ nvim
 - 插件管理：执行 `Lazy`、`:Lazy sync`、`:Lazy check` 查看或更新插件。
 - 语言工具：执行 `Mason`、`:MasonToolsInstall`、`:MasonToolsUpdate` 管理语言服务器与格式化器；网络受限时可使用 `:MasonSmart` / `:MasonInstallSmart` / `:MasonUpdateSmart` 自动切换镜像。
 - 格式化：使用 `<leader>fm`；Conform 会优先调用外部工具，必要时回退到 LSP。
+- 自检：执行 `./scripts/check.sh`，会统一检查 Lua 语法并验证 `nvim --headless` 能否正常启动。
 - 搜索 / 跳转：优先使用 `FzfLua` 与 `leap.nvim`，可显著提升效率。
 - Git：`<leader>gg` 打开 Fugitive，`<leader>gj/gk` 快速浏览改动，配合 `lazygit` 使用体验更佳。
 - AI：在 shell 中设置 `DEEPSEEK_API_KEY` / `GEMINI_API_KEY` / `OPENAI_API_KEY` 后即可使用 CodeCompanion；本地 Ollama 地址可通过 `OLLAMA_HOST` 覆盖；Windsurf / Codeium 需登录其官方服务。
