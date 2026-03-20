@@ -32,8 +32,8 @@ nvim
 ```
 
 1. 第一次启动时 `lazy.nvim` 会自动下载并安装所有插件。
-2. 通过 `:Mason` 查看/安装语言服务器与格式化器，`mason-tool-installer` 已配置自动安装常用工具。
-3. 打开项目后，LSP、Treesitter、补全、格式化等能力会自动启用。
+2. 通过 `:Mason` 查看/安装语言服务器，通过 `:MasonToolsInstall` 安装常用格式化器与命令行工具。
+3. 不带文件参数启动时会自动进入 `nx-dashboard`；从 dashboard 进入项目后，LSP、Treesitter、补全、格式化等能力会按需启用。
 
 ## 目录结构
 
@@ -43,7 +43,29 @@ nvim
   - `keymaps.lua`：统一设置 `<leader>`（默认为 `,`）、常用操作、可视模式缩进等。
   - `lazy.lua`：lazy.nvim 引导与全局配置。
 - `lua/plugins/`：按 Lazy 规范拆分的插件配置文件，可按需增删。
+- `KEYMAPS.md`：单独维护的快捷键设计与分组说明。
 - `nx-clang-format`：供 `clang-format` 使用的格式化模板。
+
+## 关键设计说明
+
+### Dashboard-first 工作流
+
+- 这套配置默认按“先打开 Neovim，再从 dashboard 进入项目”设计。
+- 空启动时会自动打开 `nx-dashboard`；选择文件后，会把全局 `cwd` 切到对应 Git 根目录，非 Git 文件则切到文件所在目录。
+- 这样后续的 Git、FzfLua、Spectre、终端命令都会自然落在当前项目上下文里，不需要再手动 `:cd`。
+
+### 启动与懒加载策略
+
+- `nvim-lspconfig` 只在 `BufReadPre` / `BufNewFile` 时进入，避免空启动就拉起整条 LSP 链。
+- `blink.cmp` 保持 `InsertEnter` 才加载；LSP 侧手写了一份 capability 镜像，避免为了拿补全能力把 blink 提前拉起。
+- `SchemaStore` 只在 `jsonls` 真正需要 schema 时按需加载，不再进入普通文件的打开热路径。
+- `gitsigns` 延后到 `VeryLazy`，更贴合 dashboard-first 的使用方式；`treesitter` 也额外做了大文件和特殊 buffer 的保护。
+
+### 工具链与格式化
+
+- `Conform` 统一承接格式化，不把格式化逻辑分散到多个 LSP 或插件里。
+- `MasonSmart` / `MasonInstallSmart` / `MasonUpdateSmart` 会在执行命令时检测 GitHub 可达性，再决定是否切换镜像。
+- C/C++ 额外做了 `compile_commands.json` 目录探测和 `clang-format` 样式固定，减少每个项目单独适配的成本。
 
 ## 常用快捷键
 
@@ -57,6 +79,7 @@ nvim
 | 正常/可视 | `j`/`k` | 智能处理换行的移动（映射到 `gj`/`gk`）。|
 | 正常 | `<leader>jd` / `<leader>kd` | 跳转到下一 / 上一条诊断信息。|
 | 可视 | `<` / `>` | 调整缩进后自动保留选区。|
+| 正常 | `<leader>fd` | 打开 `nx-dashboard`。|
 | 正常 | `<leader>w` / `<leader>W` | `leap.nvim` 单窗口 / 跨窗口跳转。|
 | 正常 | `<leader>e` / `<leader>E` | 打开 / 聚焦 Neo-tree 文件侧边栏。|
 | 正常 | `<leader>ff` / `<leader>fs` | 使用 Fzf-lua 搜索文件 / 全局模糊搜索。|
@@ -68,8 +91,10 @@ nvim
 | 正常 | `<leader>gg` | 打开 Fugitive Git 面板。|
 | 正常 | `<leader>?` | Which-key 查看当前缓冲区可用按键。|
 | 普通/可视 | `<leader>fm` | Conform.nvim 异步格式化当前缓冲区或选区。|
+| 正常 | `<leader>ai` / `<leader>aa` / `<leader>ag` / `<leader>ah` | 打开 AI 聊天、动作面板、切换聊天窗口、查看历史。|
 | 正常 | `<leader>am` | CodeCompanion 生成符合规范的提交信息。|
-| 可视 | `<leader>ae` / `<leader>ao` / `<leader>ac` / `<leader>af` / `<leader>at` | CodeCompanion 解释、优化、注释、修复、生成测试。|
+| 正常/可视 | `<leader>ae` | CodeCompanion 行内编辑。|
+| 可视 | `<leader>ax` / `<leader>ao` / `<leader>ac` / `<leader>af` / `<leader>ar` | CodeCompanion 解释、优化、注释、修复、生成测试。|
 
 完整键位设计与说明请参考 [KEYMAPS.md](./KEYMAPS.md)。
 
@@ -83,7 +108,7 @@ nvim
 - **nx-dashboard（本地插件）**：启动页与快捷入口（位于 `lua/nx/nx-dashboard`）。
 - **folke/which-key.nvim**：可视化提示快捷键。
 - **ibhagwan/fzf-lua**：模糊搜索、LSP、Git、命令等统一入口。
-- **ggandor/leap.nvim**：快速跳转光标位置。
+- **andyg/leap.nvim**：快速跳转光标位置。
 - **nx-terminal（本地插件）**：终端显示 / 隐藏、新建与标签页放大控制。
 
 ### 语法、补全与 LSP
@@ -96,8 +121,8 @@ nvim
 - **rachartier/tiny-inline-diagnostic.nvim**：LSP 诊断信息以内联气泡显示，关闭默认虚拟文本。
 
 ### AI 协作
-- **Exafunction/codeium.nvim**：AI 辅助补全，可在 `blink.cmp` 中作为补全来源。
-- **olimorris/codecompanion.nvim**（含 history 扩展）：提供聊天、内联编辑、命令三种工作流，内置多种中文提示模板并支持 DeepSeek、Gemini、OpenAI 等适配器；默认提供生成提交信息、解释代码、优化、注释、修复 Bug、生成测试等快捷键。
+- **Exafunction/windsurf.nvim**：提供 Codeium 补全能力；仅在本地 language server 已存在时自动启用，并作为 `blink.cmp` 的补全来源之一。
+- **olimorris/codecompanion.nvim**（含 history 扩展）：提供聊天、内联编辑、命令三种工作流，默认以 Codex 作为主适配器，并内置多种中文提示模板与提交信息生成器。
 
 ### Git 与版本控制
 - **lewis6991/gitsigns.nvim**：边栏与行内 Git diff 标记、跳转、暂存 / 回滚。
@@ -121,11 +146,11 @@ nvim
 ## 日常操作建议
 
 - 插件管理：执行 `Lazy`、`:Lazy sync`、`:Lazy check` 查看或更新插件。
-- 语言工具：执行 `Mason`、`:MasonToolsUpdate` 统一管理语言服务器与格式化器；网络受限时可使用 `:MasonSmart` / `:MasonInstallSmart` / `:MasonUpdateSmart` 自动切换镜像。
-- 格式化：使用 `<leader>fm` 或 `:Format`（Conform 会优先调用外部工具，回退到 LSP）。
+- 语言工具：执行 `Mason`、`:MasonToolsInstall`、`:MasonToolsUpdate` 管理语言服务器与格式化器；网络受限时可使用 `:MasonSmart` / `:MasonInstallSmart` / `:MasonUpdateSmart` 自动切换镜像。
+- 格式化：使用 `<leader>fm`；Conform 会优先调用外部工具，必要时回退到 LSP。
 - 搜索 / 跳转：优先使用 `FzfLua` 与 `leap.nvim`，可显著提升效率。
 - Git：`<leader>gg` 打开 Fugitive，`<leader>gj/gk` 快速浏览改动，配合 `lazygit` 使用体验更佳。
-- AI：在 shell 中设置 `DEEPSEEK_API_KEY` / `GEMINI_API_KEY` / `OPENAI_API_KEY` 后即可使用 CodeCompanion；Codeium 需登录其官方服务。
+- AI：在 shell 中设置 `DEEPSEEK_API_KEY` / `GEMINI_API_KEY` / `OPENAI_API_KEY` 后即可使用 CodeCompanion；本地 Ollama 地址可通过 `OLLAMA_HOST` 覆盖；Windsurf / Codeium 需登录其官方服务。
 
 ## 其它说明
 
