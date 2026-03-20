@@ -7,6 +7,7 @@ vim.opt.guifont = "Hack Nerd Font Mono Regular 12"
 
 -- 缩进
 vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.autoindent = true
@@ -37,12 +38,12 @@ vim.opt.mouse = ""
 -- 打开文件时自动跳转到关闭前的光标位置
 vim.api.nvim_create_autocmd("BufReadPost", {
 	pattern = "*",
-	callback = function()
-		-- 检查是否为普通文件缓冲区，并且该缓冲区有关联的文件
-		if vim.bo.buftype == "" and vim.fn.filereadable(vim.api.nvim_buf_get_name(0)) == 1 then
-			local last_pos = vim.fn.line("'\"")
-			if last_pos > 1 and last_pos <= vim.fn.line("$") then
-				vim.cmd('normal! g`"')
+	callback = function(args)
+		if vim.bo[args.buf].buftype == "" and vim.fn.filereadable(vim.api.nvim_buf_get_name(args.buf)) == 1 then
+			local last_pos = vim.fn.line([['"]], args.buf)
+			local line_count = vim.api.nvim_buf_line_count(args.buf)
+			if last_pos > 1 and last_pos <= line_count then
+				vim.api.nvim_win_set_cursor(0, { last_pos, 0 })
 			end
 		end
 	end,
@@ -155,27 +156,6 @@ vim.opt.completeopt = "menu,menuone,noselect"
 -- 更好的搜索体验
 vim.opt.inccommand = "split" -- 实时预览替换效果
 
--- 关闭 netrw（用 neo-tree/其他替代）
--- vim.g.loaded_netrw = 1
--- vim.g.loaded_netrwPlugin = 1
-
--- 关闭 matchit（用不到就关）
-vim.g.loaded_matchit = 1
-
--- 关闭 tar/zip 支持（你用不到的话）
-vim.g.loaded_tarPlugin = 1
-vim.g.loaded_zipPlugin = 1
-
--- 关闭 tutor
-vim.g.loaded_tutor_mode_plugin = 1
-
--- 不使用 Perl / Ruby provider，关闭可减少启动检查和 health 警告
-vim.g.loaded_perl_provider = 0
-vim.g.loaded_ruby_provider = 0
--- 不使用 NodeJS / Python3 provider，关闭可减少启动检查和 health 警告
-vim.g.loaded_node_provider = 0
-vim.g.loaded_python3_provider = 0
-
 -- 识别 .mdx 文件，匹配 marksman 的 markdown.mdx filetype
 vim.filetype.add({
 	extension = {
@@ -214,23 +194,5 @@ vim.api.nvim_create_autocmd("FileType", {
 		vim.opt_local.tabstop = 2
 		vim.opt_local.shiftwidth = 2
 		vim.opt_local.softtabstop = 2
-	end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-	group = indent_group,
-	pattern = { "python" },
-	callback = function()
-		vim.opt_local.tabstop = 4
-		vim.opt_local.shiftwidth = 4
-		vim.opt_local.softtabstop = 4
-	end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-	group = indent_group,
-	pattern = { "markdown", "markdown.mdx", "text", "gitcommit" },
-	callback = function()
-		vim.opt_local.wrap = true
 	end,
 })
